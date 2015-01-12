@@ -88,10 +88,9 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 	}
 	
 	public static class UnexpectedProcessBoxEventException extends Exception {
-
-		public UnexpectedProcessBoxEventException(String string) {
-			// TODO Auto-generated constructor stub
-		}}
+		private static final long serialVersionUID = 2453218521987820847L;
+		public UnexpectedProcessBoxEventException(String string) {}
+	}
 	
 	public TaskSummary getTask (String userName, String encoding){
 		List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner(userName, encoding); 
