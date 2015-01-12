@@ -8,6 +8,7 @@ target
 out
 *.log
 *.tlog
+.project
 .metadata
 .classpath
 tmp/
