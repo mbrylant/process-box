@@ -124,6 +124,13 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 //			logger.close();
 		}
 		
+		
+		private Container start(List<String> models) {
+			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+			kbuilder.add(ResourceFactory.newClassPathResource("com/sample/sample.bpmn"), ResourceType.BPMN2);
+			return null;
+		}
+		
 		private void start(String model){
 			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 			kbuilder.add(ResourceFactory.newClassPathResource("com/sample/sample.bpmn"), ResourceType.BPMN2);
