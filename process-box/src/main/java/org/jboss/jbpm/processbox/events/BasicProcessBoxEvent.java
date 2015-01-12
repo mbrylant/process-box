@@ -15,12 +15,12 @@
  *
  */
 
-package com.sample;
 
-public class ProcessBoxTaskCompletedEvent implements ProcessBoxEvent {
+package org.jboss.jbpm.processbox.events;
 
-	public ProcessBoxTaskCompletedEvent() {
-		// TODO Auto-generated constructor stub
-	}
+
+public class BasicProcessBoxEvent implements ProcessBoxEvent {
+
+	public BasicProcessBoxEvent() {}
 
 }

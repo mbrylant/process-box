@@ -15,8 +15,12 @@
  *
  */
 
-package com.sample;
+package org.jboss.jbpm.processbox.events;
 
-public interface ProcessBoxEvent {
+
+public class ProcessBoxTaskCreatedEvent implements ProcessBoxEvent {
+
+	public ProcessBoxTaskCreatedEvent() {
+	}
 
 }

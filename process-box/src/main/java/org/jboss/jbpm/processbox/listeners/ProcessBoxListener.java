@@ -25,10 +25,9 @@ import org.drools.event.process.ProcessNodeLeftEvent;
 import org.drools.event.process.ProcessNodeTriggeredEvent;
 import org.drools.event.process.ProcessStartedEvent;
 import org.drools.event.process.ProcessVariableChangedEvent;
+import org.jboss.jbpm.processbox.events.ProcessBoxEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sample.ProcessBoxEvent;
 
 public abstract class ProcessBoxListener implements ProcessEventListener {
 	

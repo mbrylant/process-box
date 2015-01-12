@@ -15,7 +15,8 @@
  *
  */
 
-package com.sample;
+package org.jboss.jbpm.processbox.events;
+
 
 public class ProcessBoxInstanceStartEvent implements ProcessBoxEvent {
 

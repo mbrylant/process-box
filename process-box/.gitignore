@@ -1,1 +1,25 @@
-/target
+bin
+target
+# IntelliJ
+.idea
+*.ipr
+*.iml
+*.iws
+out
+*.log
+*.tlog
+.metadata
+.classpath
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+.settings/
+.loadpath
+# External tool builders
+.externalToolBuilders/
+# Locally stored "Eclipse launch configurations"
+*.launch
+# sbteclipse plugin
+.target

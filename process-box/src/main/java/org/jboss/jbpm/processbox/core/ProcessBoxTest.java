@@ -15,7 +15,7 @@
  *
  */
 
-package org.jboss.jbpm.processbox.runners;
+package org.jboss.jbpm.processbox.core;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 //import static org.junit.Assert.*;
+
+
+
 
 import org.drools.KnowledgeBase;
 import org.drools.builder.KnowledgeBuilder;
@@ -34,6 +37,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
 import org.h2.tools.Server;
+import org.jboss.jbpm.processbox.events.ProcessBoxEvent;
 import org.jboss.jbpm.processbox.listeners.DefaultAgendaEventListener;
 import org.jboss.jbpm.processbox.listeners.DefaultProcessBoxListener;
 import org.jboss.jbpm.processbox.listeners.DefaultWorkingMemoryEventListener;
@@ -46,13 +50,11 @@ import org.jbpm.test.JbpmJUnitTestCase;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 //import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
-
 import bitronix.tm.resource.jdbc.PoolingDataSource;
-
-import com.sample.ProcessBoxEvent;
 
 public class ProcessBoxTest extends JbpmJUnitTestCase{
 	

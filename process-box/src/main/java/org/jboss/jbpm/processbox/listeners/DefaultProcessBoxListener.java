@@ -21,11 +21,9 @@ import java.util.concurrent.BlockingQueue;
 
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessStartedEvent;
-
-import com.sample.BasicProcessBoxEvent;
-import com.sample.ProcessBoxEvent;
-import com.sample.ProcessBoxInstanceCompletedEvent;
-import com.sample.ProcessBoxInstanceStartEvent;
+import org.jboss.jbpm.processbox.events.ProcessBoxEvent;
+import org.jboss.jbpm.processbox.events.ProcessBoxInstanceCompletedEvent;
+import org.jboss.jbpm.processbox.events.ProcessBoxInstanceStartEvent;
 
 public class DefaultProcessBoxListener extends ProcessBoxListener {
 
