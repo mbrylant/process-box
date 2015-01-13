@@ -17,16 +17,12 @@
 
 package org.jboss.jbpm.processbox.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-//import static org.junit.Assert.*;
-
-
-
-
 import org.drools.KnowledgeBase;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
@@ -37,6 +33,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
 import org.h2.tools.Server;
+import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.events.ProcessBoxEvent;
 import org.jboss.jbpm.processbox.listeners.DefaultAgendaEventListener;
 import org.jboss.jbpm.processbox.listeners.DefaultProcessBoxListener;
@@ -50,8 +47,6 @@ import org.jbpm.test.JbpmJUnitTestCase;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-//import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
@@ -105,13 +100,21 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		private StatefulKnowledgeSession ksession;
 		
 		private KnowledgeRuntimeLogger logger = null;
+		private boolean INITIALIZED = false;
 		
 		public StatefulKnowledgeSession getSession() {
 			return ksession;
 		}
 
-		public Container(String model){
+		public Container(String model) throws ContainerInitializationException{
 			start(model);
+			this.INITIALIZED = true;
+		}
+		
+		public Container() {			
+		}
+		
+		public void getWorkItemHanlders(){			
 		}
 				
 		private void addDefaultListeners(){
@@ -125,23 +128,21 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		}
 		
 		
-		private Container start(List<String> models) {
+		private Container start(List<String> models) throws ContainerInitializationException {			
 			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-			kbuilder.add(ResourceFactory.newClassPathResource("com/sample/sample.bpmn"), ResourceType.BPMN2);
-			return null;
-		}
-		
-		private void start(String model){
-			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-			kbuilder.add(ResourceFactory.newClassPathResource("com/sample/sample.bpmn"), ResourceType.BPMN2);
+			for (String model: models){
+				kbuilder.add(ResourceFactory.newClassPathResource(model), ResourceType.BPMN2);
+			}
 			KnowledgeBase kbase = kbuilder.newKnowledgeBase();
 			ksession = kbase.newStatefulKnowledgeSession();
 			addDefaultListeners();
+			return this;
+		}
 		
-
-//			KnowledgeRuntimeLogger logger = KnowledgeRuntimeLoggerFactory.newThreadedFileLogger(ksession, "bpmslogfile", 1000);
-//			ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new WSHumanTaskHandler());
-//			GenericHTWorkItemHandler taskHandler = new GenericHTWorkItemHandler(taskService, ksession);	
+		private Container start(String model) throws ContainerInitializationException{
+			List<String> models = new ArrayList<String>();
+			models.add(model);
+			return this.start(models);
 		}
 		
 		
@@ -152,7 +153,8 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		}
 
 
-		public ProcessInstance startProcess(String processName) {
+		public ProcessInstance startProcess(String processName) throws ContainerInitializationException {
+			if (this.INITIALIZED == false) throw new ContainerInitializationException();
 			ProcessInstance processInstance = ksession.startProcess(processName, null);
 			instances.put(processName, processInstance);
 			return processInstance;
@@ -161,7 +163,8 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		
 	}
 	
-	protected void waitFor(Class<? extends ProcessBoxEvent> eventClass) throws UnexpectedProcessBoxEventException, InterruptedException {
+	
+	protected ProcessBoxEvent waitFor(Class<? extends ProcessBoxEvent> eventClass) throws UnexpectedProcessBoxEventException, InterruptedException {
 		
 		ProcessBoxEvent event = null;
 		event = queue.take();
@@ -172,6 +175,8 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		}
 		
 		log.debug("Received event: {" + event + "}");
+		
+		return event;
 	}
 
 }

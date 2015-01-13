@@ -18,5 +18,11 @@
 package org.jboss.jbpm.processbox.events;
 
 public interface ProcessBoxEvent {
+	
+	public String getId();
+	
+	public String getType();
+	
+	public String getSubType();
 
 }

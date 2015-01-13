@@ -21,6 +21,7 @@ import java.util.concurrent.BlockingQueue;
 
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessStartedEvent;
+import org.drools.runtime.StatefulKnowledgeSession;
 import org.jboss.jbpm.processbox.events.ProcessBoxEvent;
 import org.jboss.jbpm.processbox.events.ProcessBoxInstanceCompletedEvent;
 import org.jboss.jbpm.processbox.events.ProcessBoxInstanceStartEvent;
@@ -33,11 +34,13 @@ public class DefaultProcessBoxListener extends ProcessBoxListener {
 	
 	@Override
 	public void afterProcessStarted(ProcessStartedEvent evt) {
-		queue.add(new ProcessBoxInstanceStartEvent());
+		super.afterProcessStarted(evt);
+		queue.add(new ProcessBoxInstanceStartEvent(evt));		
 	}
 	
 	@Override
 	public void afterProcessCompleted(ProcessCompletedEvent evt) {
+		super.afterProcessCompleted(evt);
 		queue.add(new ProcessBoxInstanceCompletedEvent());
 	}	
 

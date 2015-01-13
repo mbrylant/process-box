@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProcessBoxTaskListener implements TaskEventListener {
-	private static Logger log = LoggerFactory.getLogger(ProcessBoxListener.class);
+	private static Logger log = LoggerFactory.getLogger(ProcessBoxTaskListener.class);
 	
 	private final BlockingQueue<ProcessBoxEvent> queue;
 	
@@ -40,21 +40,21 @@ public class ProcessBoxTaskListener implements TaskEventListener {
 	}
 
 	public void taskClaimed(TaskClaimedEvent evt) {
-		log.debug(evt.toString());
+		log.debug(String.format("intercepted taskClaimed event on task {%d}", evt.getTaskId()));
 		queue.add(new ProcessBoxTaskCreatedEvent());
 	}
 
 	public void taskCompleted(TaskCompletedEvent evt) {
-		log.debug(evt.toString());
+		log.debug(String.format("intercepted taskCompleted event on task {%d}", evt.getTaskId()));
 		queue.add(new ProcessBoxTaskCompletedEvent());
 	}
 
 	public void taskFailed(TaskFailedEvent evt) {
-		log.debug(evt.toString());
+		log.debug(String.format("intercepted taskFailed event on task {%d}", evt.getTaskId()));
 	}
 
 	public void taskSkipped(TaskSkippedEvent evt) {
-		log.debug(evt.toString());		
+		log.debug(String.format("intercepted taskSkipped event on task {%d}", evt.getTaskId()));
 	}
 
 }

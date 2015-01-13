@@ -20,7 +20,26 @@ package org.jboss.jbpm.processbox.events;
 
 
 public class BasicProcessBoxEvent implements ProcessBoxEvent {
+	
+	private String id = "";
 
 	public BasicProcessBoxEvent() {}
+	
+	public BasicProcessBoxEvent(String id) {this.id = id;}
+
+	public String getId() {
+		// TODO Auto-generated method stub
+		return id;
+	}
+
+	public String getType() {
+		// TODO Auto-generated method stub
+		return "ProcessBoxEvent";
+	}
+	
+	public String getSubType() {
+		// TODO Auto-generated method stub
+		return "BasicProcessBoxEvent";
+	}
 
 }

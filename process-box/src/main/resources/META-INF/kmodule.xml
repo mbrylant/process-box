@@ -21,6 +21,6 @@
 
 <kmodule xmlns="http://jboss.org/kie/6.0.0/kmodule">
 
-  <kbase name="kbase" packages="com.sample"/>
+  <kbase name="kbase" packages="org.jboss.jbpm.processbox.tests"/>
 
 </kmodule>

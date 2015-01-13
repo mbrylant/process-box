@@ -15,45 +15,39 @@
  *
  */
 
-package com.sample;
+package org.jboss.jbpm.processbox.tests;
 
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import org.drools.KnowledgeBase;
-import org.drools.builder.KnowledgeBuilder;
-import org.drools.builder.KnowledgeBuilderFactory;
-import org.drools.builder.ResourceType;
-import org.drools.io.ResourceFactory;
-import org.drools.logger.KnowledgeRuntimeLogger;
-import org.drools.logger.KnowledgeRuntimeLoggerFactory;
-import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
+import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.core.ProcessBoxTest;
 import org.jboss.jbpm.processbox.events.ProcessBoxInstanceCompletedEvent;
 import org.jboss.jbpm.processbox.events.ProcessBoxInstanceStartEvent;
 import org.jboss.jbpm.processbox.events.ProcessBoxTaskCompletedEvent;
 import org.jboss.jbpm.processbox.events.ProcessBoxTaskCreatedEvent;
-import org.jboss.jbpm.processbox.listeners.DefaultAgendaEventListener;
-import org.jboss.jbpm.processbox.listeners.DefaultProcessBoxListener;
-import org.jboss.jbpm.processbox.listeners.DefaultWorkingMemoryEventListener;
+import org.jboss.jbpm.processbox.handlers.ConfigurableMockWorkItemHandler;
+import org.jbpm.bpmn2.handler.ServiceTaskHandler;
 import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
 import org.jbpm.task.query.TaskSummary;
 import org.junit.Test;
 
-public class SampleTest extends ProcessBoxTest {						
+public class SimpleTest extends ProcessBoxTest {						
 	
 	@SuppressWarnings("deprecation")
 	@Test
-	public void testSampleProcess() throws InterruptedException, UnexpectedProcessBoxEventException {
+	public void testSimpleProcess() throws InterruptedException, UnexpectedProcessBoxEventException, ContainerInitializationException {
 						
 		
-		Container container = new Container("com/sample/sample.bpmn");
+		Container container = new Container("org/jboss/jbpm/processbox/tests/simple.bpmn");
+//		Container container = new Container("com/sample/simple.bpmn2");
 		container.workItemHandler("Human Task", new CommandBasedWSHumanTaskHandler(container.getSession()));
+//		container.workItemHandler("Service Task", new ConfigurableMockWorkItemHandler(true));
+		container.workItemHandler("SVC", new ServiceTaskHandler());
 					
-		ProcessInstance processInstance = container.startProcess("com.sample.bpmn.hello");				
-		waitFor(ProcessBoxInstanceStartEvent.class);		
+		ProcessInstance processInstance = container.startProcess("process.simple");				
+		ProcessBoxInstanceStartEvent processBoxInstanceStartEvent = (ProcessBoxInstanceStartEvent)waitFor(ProcessBoxInstanceStartEvent.class);
+		log.debug(String.format("Process Instance {%s} started in contaier", processBoxInstanceStartEvent.getId()));
 		assertProcessInstanceActive(processInstance.getId(), container.getSession());
 		
 		waitFor(ProcessBoxTaskCreatedEvent.class);				
