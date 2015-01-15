@@ -18,8 +18,6 @@
     <class>org.jbpm.task.BooleanExpression</class>
     <class>org.jbpm.task.Comment</class>
     <class>org.jbpm.task.Deadline</class>
-    <class>org.jbpm.task.Comment</class>
-    <class>org.jbpm.task.Deadline</class>
     <class>org.jbpm.task.Delegation</class>
     <class>org.jbpm.task.Escalation</class>
     <class>org.jbpm.task.Group</class>

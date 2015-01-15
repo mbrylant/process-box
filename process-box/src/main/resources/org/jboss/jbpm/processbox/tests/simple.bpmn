@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:g="http://www.jboss.org/drools/flow/gpd" xmlns:tns="http://www.jboss.org/drools" xmlns="http://www.jboss.org/drools" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd" id="Definition" expressionLanguage="http://www.mvel.org/2.0" targetNamespace="http://www.jboss.org/drools" typeLanguage="http://www.java.com/javaTypes">
+  <bpmn2:itemDefinition id="_Boolean" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="ItemDefinition_2" structureRef="java.util.Map"/>
   <bpmn2:process id="process.simple" tns:version="1" tns:packageName="defaultPackage" tns:adHoc="false" name="Simple Process" isExecutable="true" processType="Private">
     <bpmn2:documentation id="Documentation_1">/*
  * (C) Copyright 2014 Mariusz Brylant (mbrylant@gmail.com).
@@ -17,6 +19,11 @@
  * limitations under the License.
  *
  */</bpmn2:documentation>
+    <bpmn2:extensionElements>
+      <tns:import name="java.util.Map"/>
+    </bpmn2:extensionElements>
+    <bpmn2:property id="retryFailed" itemSubjectRef="_Boolean"/>
+    <bpmn2:property id="contentMap" itemSubjectRef="ItemDefinition_2"/>
     <bpmn2:userTask id="_5" name="Second Task">
       <bpmn2:incoming>SequenceFlow_13</bpmn2:incoming>
       <bpmn2:outgoing>_5-_3</bpmn2:outgoing>
@@ -130,12 +137,25 @@
       <bpmn2:outgoing>_1-_4</bpmn2:outgoing>
     </bpmn2:startEvent>
     <bpmn2:sequenceFlow id="_1-_4" tns:priority="1" name="Initialize" sourceRef="_1" targetRef="_4"/>
-    <bpmn2:serviceTask id="ServiceTask_3" name="Service Task 2" implementation="##unspecified" tns:taskName="SVC">
+    <bpmn2:task id="ServiceTask_3" tns:taskName="Custom Service" name="Service Task 2">
+      <bpmn2:extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script></tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script>/*Process webservice result*/
+java.util.Map mapContent = (java.util.Map)kcontext.getVariable(&quot;contentMap&quot;);
+kcontext.setVariable(&quot;retryFailed&quot;,mapContent.get(&quot;retryFailed&quot;));
+//kcontext.setVariable(&quot;sysAdminQId&quot;,mapContent.get(&quot;sysAdminQId&quot;));
+//kcontext.setVariable(&quot;aborted&quot;,false);
+</tns:script>
+        </tns:onExit-script>
+      </bpmn2:extensionElements>
       <bpmn2:incoming>SequenceFlow_12</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_13</bpmn2:outgoing>
-    </bpmn2:serviceTask>
-    <bpmn2:sequenceFlow id="SequenceFlow_12" tns:priority="1" sourceRef="_4" targetRef="ServiceTask_3"/>
-    <bpmn2:sequenceFlow id="SequenceFlow_13" tns:priority="1" sourceRef="ServiceTask_3" targetRef="_5"/>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="SequenceFlow_12" tns:priority="1" name="" sourceRef="_4" targetRef="ServiceTask_3"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_13" tns:priority="1" name="" sourceRef="ServiceTask_3" targetRef="_5"/>
   </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Simple Process">
     <bpmndi:BPMNPlane id="BPMNPlane_Process_1" bpmnElement="process.simple">

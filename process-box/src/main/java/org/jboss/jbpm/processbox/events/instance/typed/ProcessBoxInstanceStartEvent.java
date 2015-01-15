@@ -15,14 +15,15 @@
  *
  */
 
-package org.jboss.jbpm.processbox.events;
+package org.jboss.jbpm.processbox.events.instance.typed;
 
-public interface ProcessBoxEvent {
-	
-	public String getId();
-	
-	public String getType();
-	
-	public String getSubType();
+import org.drools.event.process.ProcessEvent;
+import org.jboss.jbpm.processbox.events.base.ProcessBoxInstanceEvent;
+
+public class ProcessBoxInstanceStartEvent extends ProcessBoxInstanceEvent {
+		
+	public ProcessBoxInstanceStartEvent(ProcessEvent event) {		
+		super(event);
+	}	
 
 }

@@ -20,63 +20,77 @@ package org.jboss.jbpm.processbox.listeners;
 import java.util.concurrent.BlockingQueue;
 
 import org.drools.event.process.ProcessCompletedEvent;
+import org.drools.event.process.ProcessEvent;
 import org.drools.event.process.ProcessEventListener;
+import org.drools.event.process.ProcessNodeEvent;
 import org.drools.event.process.ProcessNodeLeftEvent;
 import org.drools.event.process.ProcessNodeTriggeredEvent;
 import org.drools.event.process.ProcessStartedEvent;
 import org.drools.event.process.ProcessVariableChangedEvent;
-import org.jboss.jbpm.processbox.events.ProcessBoxEvent;
+import org.jboss.jbpm.processbox.events.base.ProcessBoxEvent;
+import org.jboss.jbpm.processbox.events.instance.DefaultProcessBoxInstanceEvent;
+import org.jboss.jbpm.processbox.handlers.EventBuffer;
+import org.jboss.jbpm.processbox.handlers.EventLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class ProcessBoxListener implements ProcessEventListener {
+public class ProcessBoxProcessListener implements ProcessEventListener {
 	
-	protected static Logger log = LoggerFactory.getLogger(ProcessBoxListener.class);
+	protected static Logger log = LoggerFactory.getLogger(ProcessBoxProcessListener.class);
 	
 	protected final BlockingQueue<ProcessBoxEvent> queue;
 	
-	public ProcessBoxListener(BlockingQueue<ProcessBoxEvent>  queue){
+	public ProcessBoxProcessListener(BlockingQueue<ProcessBoxEvent>  queue){
 		this.queue = queue;
 	}
+	
+	private void handleEvent(ProcessEvent evt, String message){
+		String id = evt instanceof ProcessNodeEvent ? ((ProcessNodeEvent)evt).getNodeInstance().getNodeName() : evt.getProcessInstance().getProcessId();
+		log.debug(String.format("intercepted {%s} event on node {%s}", message, id));	
+		EventBuffer.get().pushEvent(evt);
+		EventLog.get().logEvent(evt);
+		queue.add(new DefaultProcessBoxInstanceEvent(evt));
+	}
+	
 
 	public void afterNodeLeft(ProcessNodeLeftEvent evt) {
-		log.debug(String.format("intercepted afterNodeLeft event on node {%s}", evt.getNodeInstance().getNodeName()));		
+		handleEvent(evt, "afterNodeLeft");	
 	}
 
 	public void afterNodeTriggered(ProcessNodeTriggeredEvent evt) {
-		log.debug(String.format("intercepted afterNodeTriggered event on node {%s}", evt.getNodeInstance().getNodeName()));		
+		handleEvent(evt, "afterNodeTriggered");		
 	}
 
 	public void afterProcessCompleted(ProcessCompletedEvent evt) {
-		log.debug(String.format("intercepted afterProcessCompleted event on process {%s}", evt.getProcessInstance().getProcessId()));
+		handleEvent(evt, "afterProcessCompleted");	
 	}
 
 	public void afterProcessStarted(ProcessStartedEvent evt) {
-		log.debug(String.format("intercepted afterProcessStarted event on process {%s}", evt.getProcessInstance().getProcessId()));		
+		handleEvent(evt, "afterProcessStarted");	
 	}
 
 	public void afterVariableChanged(ProcessVariableChangedEvent evt) {
-		log.debug(String.format("intercepted afterVariableChanged event on variable {%s}", evt.getVariableId()));
+		handleEvent(evt, "afterVariableChanged");	
 	}
 
 	public void beforeNodeLeft(ProcessNodeLeftEvent evt) {
-		log.debug(String.format("intercepted beforeNodeLeft event on node {%s}", evt.getNodeInstance().getNodeName()));		
+		handleEvent(evt, "beforeNodeLeft");
 	}
 
 	public void beforeNodeTriggered(ProcessNodeTriggeredEvent evt) {
-		log.debug(String.format("intercepted beforeNodeTriggered event on node {%s}", evt.getNodeInstance().getNodeName()));
+		handleEvent(evt, "beforeNodeTriggered");
 	}
 
 	public void beforeProcessCompleted(ProcessCompletedEvent evt) {
-		log.debug(String.format("intercepted beforeProcessCompleted event on process {%s}", evt.getProcessInstance().getProcessId()));	
+		handleEvent(evt, "beforeProcessCompleted");
 	}
 
 	public void beforeProcessStarted(ProcessStartedEvent evt) {
-		log.debug(String.format("intercepted beforeProcessStarted event on process {%s}", evt.getProcessInstance().getProcessId()));		
+		handleEvent(evt, "beforeProcessStarted");
 	}
 
 	public void beforeVariableChanged(ProcessVariableChangedEvent evt) {
-		log.debug(String.format("intercepted beforeVariableChanged event on variable {%s}", evt.getVariableId()));	
+		handleEvent(evt, "beforeVariableChanged");
 	}
 
 }

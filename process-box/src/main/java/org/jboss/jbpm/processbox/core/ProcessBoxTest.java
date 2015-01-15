@@ -22,23 +22,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.drools.KnowledgeBase;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
+import org.drools.event.process.ProcessEvent;
 import org.drools.io.ResourceFactory;
 import org.drools.logger.KnowledgeRuntimeLogger;
+import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
 import org.h2.tools.Server;
 import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
-import org.jboss.jbpm.processbox.events.ProcessBoxEvent;
-import org.jboss.jbpm.processbox.listeners.DefaultAgendaEventListener;
-import org.jboss.jbpm.processbox.listeners.DefaultProcessBoxListener;
-import org.jboss.jbpm.processbox.listeners.DefaultWorkingMemoryEventListener;
+import org.jboss.jbpm.processbox.events.base.Events;
+import org.jboss.jbpm.processbox.events.base.ProcessBoxEvent;
+import org.jboss.jbpm.processbox.events.base.ProcessBoxInstanceEvent;
+import org.jboss.jbpm.processbox.listeners.ProcessBoxProcessListener;
 import org.jboss.jbpm.processbox.listeners.ProcessBoxTaskListener;
+import org.jboss.jbpm.processbox.listeners.other.DefaultAgendaEventListener;
+import org.jboss.jbpm.processbox.listeners.other.DefaultWorkingMemoryEventListener;
+import org.jboss.jbpm.processbox.model.DefaultProcessBoxNode;
+import org.jboss.jbpm.processbox.model.Initialized;
+import org.jboss.jbpm.processbox.model.NodeId;
+import org.jboss.jbpm.processbox.model.ProcessBoxNode;
+import org.jbpm.task.event.TaskUserEvent;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.local.LocalTaskService;
@@ -47,6 +61,9 @@ import org.jbpm.test.JbpmJUnitTestCase;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
@@ -84,7 +101,9 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 	
 	public static class UnexpectedProcessBoxEventException extends Exception {
 		private static final long serialVersionUID = 2453218521987820847L;
-		public UnexpectedProcessBoxEventException(String string) {}
+		public UnexpectedProcessBoxEventException(String message) {
+			super(message);
+		}
 	}
 	
 	public TaskSummary getTask (String userName, String encoding){
@@ -99,7 +118,9 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		private Map<String, ProcessInstance> instances = new HashMap<String, ProcessInstance>();
 		private StatefulKnowledgeSession ksession;
 		
-		private KnowledgeRuntimeLogger logger = null;
+		private KnowledgeRuntimeLogger logger;
+		
+		private org.drools.audit.KnowledgeRuntimeLoggerProviderImpl provider;
 		private boolean INITIALIZED = false;
 		
 		public StatefulKnowledgeSession getSession() {
@@ -118,13 +139,13 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		}
 				
 		private void addDefaultListeners(){
-			ksession.addEventListener(new DefaultProcessBoxListener(queue));		
+			ksession.addEventListener(new ProcessBoxProcessListener(queue));		
 			ksession.addEventListener(new DefaultAgendaEventListener());
 			ksession.addEventListener(new DefaultWorkingMemoryEventListener());
 		}
 		
 		public void close(){
-//			logger.close();
+			logger.close();
 		}
 		
 		
@@ -135,6 +156,7 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 			}
 			KnowledgeBase kbase = kbuilder.newKnowledgeBase();
 			ksession = kbase.newStatefulKnowledgeSession();
+			logger = KnowledgeRuntimeLoggerFactory.newFileLogger(ksession,"trace.plog");
 			addDefaultListeners();
 			return this;
 		}
@@ -148,27 +170,87 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		
 		public Container workItemHandler(String taskName, WorkItemHandler handler) {
 			this.ksession.getWorkItemManager().registerWorkItemHandler(taskName, handler);
-			return this;
-			
+			return this;			
 		}
 
 
 		public ProcessInstance startProcess(String processName) throws ContainerInitializationException {
-			if (this.INITIALIZED == false) throw new ContainerInitializationException();
-			ProcessInstance processInstance = ksession.startProcess(processName, null);
-			instances.put(processName, processInstance);
-			return processInstance;
-			
+			return this.startProcess(processName, null);			
 		}
+		
+		
+		public ProcessInstance startProcess(String processName, Map<String, Object> params) throws ContainerInitializationException {
+			if (this.INITIALIZED == false) throw new ContainerInitializationException();
+			ProcessInstance processInstance = ksession.startProcess(processName, params);
+			instances.put(processName, processInstance);
+			return processInstance;			
+		}				
+	}
+	
+	
+	@Async
+	public Future<ProcessBoxEvent> getAnyEvent() throws InterruptedException {	    
+	        return new AsyncResult<ProcessBoxEvent>( this.queue.take());
+	}
+	
+	@Async
+	public Future<ProcessBoxEvent> getSpecificEvent(Events eventType) throws InterruptedException {	    
+	        return new AsyncResult<ProcessBoxEvent>( waitUntilEvent(eventType));
+	}
+	
+	protected ProcessBoxEvent waitUntilOrTimeout(Events eventType, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+		Future<ProcessBoxEvent> eventFuture = getSpecificEvent(eventType);
+		return eventFuture.get(timeout, unit);
 		
 	}
 	
 	
-	protected ProcessBoxEvent waitFor(Class<? extends ProcessBoxEvent> eventClass) throws UnexpectedProcessBoxEventException, InterruptedException {
-		
+	protected ProcessBoxEvent waitUntilEvent(Events eventType) throws InterruptedException {
 		ProcessBoxEvent event = null;
 		event = queue.take();
-
+		
+		log.debug(String.format("Listening for events of type {%s}", eventType.toString()));
+		
+		while (event== null || !event.getSubType().equalsIgnoreCase(eventType.toString())) {
+			log.debug(String.format("Skipping event {%s}", event.getSubType()));
+			event = queue.take();
+		}		
+		log.debug(String.format("Matched event {%s}", event.getSubType()));
+		return event;
+	}
+	
+	
+	protected ProcessBoxNode<Initialized> nodeId(String id){
+		return DefaultProcessBoxNode.with(new NodeId(id));
+	}
+	
+	
+	
+	@Async
+	public Future<ProcessBoxEvent> getSpecificNode(ProcessBoxNode<Initialized> node) throws InterruptedException {	    
+	        return new AsyncResult<ProcessBoxEvent>( waitUntil(node));
+	}
+	
+	protected ProcessBoxEvent waitUntilOrTimeout(ProcessBoxNode<Initialized> node, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+		Future<ProcessBoxEvent> eventFuture = getSpecificNode(node);
+		return eventFuture.get(timeout, unit);
+	}
+	
+	protected ProcessBoxEvent waitUntil(ProcessBoxNode<Initialized> node) throws InterruptedException {
+		ProcessBoxEvent event = null;
+		event = queue.take();
+		
+		while (event== null || !node.matches(event)) {
+			log.debug("Skipping event: {" + event + "}");
+			event = queue.take();
+		}		
+		log.debug(String.format("Received event {%s} matching node activation {%s}", event, node));
+		return event;
+	}
+	
+	protected ProcessBoxEvent waitFor(Class<? extends ProcessBoxEvent> eventClass) throws UnexpectedProcessBoxEventException, InterruptedException {		
+		ProcessBoxEvent event = null;
+		event = queue.take();
 		
 		if (event.getClass() != eventClass) {
 			throw new UnexpectedProcessBoxEventException(String.format("Expecting ProcessBoxEvent of type {%s}, but got {%s} ", eventClass.getSimpleName(), event.getClass().getSimpleName()) );

@@ -15,38 +15,16 @@
  *
  */
 
-package org.jboss.jbpm.processbox.events;
+package org.jboss.jbpm.processbox.events.instance.typed;
 
 import org.drools.event.process.ProcessEvent;
+import org.jboss.jbpm.processbox.events.base.ProcessBoxInstanceEvent;
 
 
-public class ProcessBoxInstanceStartEvent implements ProcessBoxInstanceEvent {
+public class ProcessBoxInstanceCompletedEvent extends ProcessBoxInstanceEvent {
 	
-	private final ProcessEvent event;
-	
-	public ProcessBoxInstanceStartEvent(ProcessEvent event) {		
-		this.event = event;
-	}
-
-	public String getId() {
-		// TODO Auto-generated method stub
-		return String.format("%d", event.getProcessInstance().getId());
-	}
-
-	public String getType() {
-		// TODO Auto-generated method stub
-		return "ProcessBoxInstanceEvent";
-	}
-
-
-	public String getSubType() {
-		// TODO Auto-generated method stub
-		return "ProcessBoxInstanceStartEvent";
-	}
-
-	public ProcessEvent getEvent() {
-		// TODO Auto-generated method stub
-		return this.event;
+	public ProcessBoxInstanceCompletedEvent(ProcessEvent event) {
+		super(event);
 	}
 
 }

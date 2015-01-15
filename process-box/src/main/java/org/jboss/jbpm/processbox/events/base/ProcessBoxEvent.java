@@ -15,28 +15,15 @@
  *
  */
 
-package org.jboss.jbpm.processbox.events;
+package org.jboss.jbpm.processbox.events.base;
 
 
-public class ProcessBoxTaskCompletedEvent implements ProcessBoxEvent {
-
-	public ProcessBoxTaskCompletedEvent() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public String getId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getSubType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+public interface ProcessBoxEvent {
+	
+	public String getId();
+	
+	public String getType();
+	
+	public String getSubType();
 
 }

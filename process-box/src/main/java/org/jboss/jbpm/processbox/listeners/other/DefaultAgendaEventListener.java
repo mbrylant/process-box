@@ -15,7 +15,7 @@
  *
  */
 
-package org.jboss.jbpm.processbox.listeners;
+package org.jboss.jbpm.processbox.listeners.other;
 
 import org.drools.WorkingMemory;
 import org.drools.event.ActivationCancelledEvent;

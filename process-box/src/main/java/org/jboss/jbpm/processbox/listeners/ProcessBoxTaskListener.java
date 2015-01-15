@@ -19,14 +19,23 @@ package org.jboss.jbpm.processbox.listeners;
 
 import java.util.concurrent.BlockingQueue;
 
-import org.jboss.jbpm.processbox.events.ProcessBoxEvent;
-import org.jboss.jbpm.processbox.events.ProcessBoxTaskCompletedEvent;
-import org.jboss.jbpm.processbox.events.ProcessBoxTaskCreatedEvent;
+import org.drools.event.process.ProcessEvent;
+import org.drools.event.process.ProcessNodeEvent;
+import org.jboss.jbpm.processbox.events.base.ProcessBoxEvent;
+import org.jboss.jbpm.processbox.events.instance.DefaultProcessBoxInstanceEvent;
+import org.jboss.jbpm.processbox.events.task.DefaultProcessBoxTaskEvent;
+import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskCompletedEvent;
+import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskCreatedEvent;
+import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskFailedEvent;
+import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskSkippedEvent;
+import org.jboss.jbpm.processbox.handlers.EventBuffer;
+import org.jboss.jbpm.processbox.handlers.EventLog;
 import org.jbpm.task.event.TaskClaimedEvent;
 import org.jbpm.task.event.TaskCompletedEvent;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.TaskFailedEvent;
 import org.jbpm.task.event.TaskSkippedEvent;
+import org.jbpm.task.event.TaskUserEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,23 +47,29 @@ public class ProcessBoxTaskListener implements TaskEventListener {
 	public ProcessBoxTaskListener(BlockingQueue<ProcessBoxEvent> queue) {
 		this.queue = queue;
 	}
+	
+	private void handleEvent(TaskUserEvent evt, String message){
+		String id = String.format("%d",  evt.getTaskId());
+		log.debug(String.format("intercepted {%s} event on task {%s}", message, id));
+		EventBuffer.get().pushEvent(evt);
+		EventLog.get().logEvent(evt);
+		queue.add(new DefaultProcessBoxTaskEvent(evt));
+	}
 
 	public void taskClaimed(TaskClaimedEvent evt) {
-		log.debug(String.format("intercepted taskClaimed event on task {%d}", evt.getTaskId()));
-		queue.add(new ProcessBoxTaskCreatedEvent());
+		handleEvent(evt, evt.getClass().getSimpleName());
 	}
 
 	public void taskCompleted(TaskCompletedEvent evt) {
-		log.debug(String.format("intercepted taskCompleted event on task {%d}", evt.getTaskId()));
-		queue.add(new ProcessBoxTaskCompletedEvent());
+		handleEvent(evt, evt.getClass().getSimpleName());
 	}
 
 	public void taskFailed(TaskFailedEvent evt) {
-		log.debug(String.format("intercepted taskFailed event on task {%d}", evt.getTaskId()));
+		handleEvent(evt, evt.getClass().getSimpleName());
 	}
 
 	public void taskSkipped(TaskSkippedEvent evt) {
-		log.debug(String.format("intercepted taskSkipped event on task {%d}", evt.getTaskId()));
+		handleEvent(evt, evt.getClass().getSimpleName());
 	}
 
 }

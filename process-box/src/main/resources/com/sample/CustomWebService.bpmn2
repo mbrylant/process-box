@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
+xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
+xmlns:g="http://www.jboss.org/drools/flow/gpd" 
+xmlns:tns="http://www.jboss.org/drools" 
+xmlns="http://www.jboss.org/drools" 
+xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd" id="Definition" expressionLanguage="http://www.mvel.org/2.0" targetNamespace="http://www.jboss.org/drools" typeLanguage="http://www.java.com/javaTypes">
+  <bpmn2:itemDefinition id="_serviceParamsItem" structureRef="java.util.HashMap"/>
+  <bpmn2:itemDefinition id="_serviceNameItem" structureRef="String"/>
+  <bpmn2:itemDefinition id="_returnTypeMapItem" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="_serviceReturnItem" structureRef="java.util.HashMap"/>
+  <bpmn2:itemDefinition id="_serviceOperationNameItem" structureRef="String"/>
+  <bpmn2:itemDefinition id="_sysAdminQIdItem" structureRef="String"/>
+  <bpmn2:itemDefinition id="_retryFailedItem" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="_isSysAdminTaskItem" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="_taskIdItem" structureRef="String"/>
+  <bpmn2:itemDefinition id="_resubmitItem" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="_contentMapItem" structureRef="java.util.Map"/>
+  <bpmn2:itemDefinition id="_abortedItem" structureRef="Boolean"/>
+  <bpmn2:process id="CustomService" tns:version="1" tns:packageName="defaultPackage" tns:adHoc="false" name="Sample Process" isExecutable="true" processType="Private">
+    <bpmn2:property id="serviceParams" itemSubjectRef="_serviceParamsItem"/>
+    <bpmn2:property id="serviceName" itemSubjectRef="_serviceNameItem"/>
+    <bpmn2:property id="returnTypeMap" itemSubjectRef="_returnTypeMapItem"/>
+    <bpmn2:property id="serviceReturn" itemSubjectRef="_serviceReturnItem"/>
+    <bpmn2:property id="serviceOperationName" itemSubjectRef="_serviceOperationNameItem"/>
+    <bpmn2:property id="sysAdminQId" itemSubjectRef="_sysAdminQIdItem"/>
+    <bpmn2:property id="retryFailed" itemSubjectRef="_retryFailedItem"/>
+    <bpmn2:property id="isSysAdminTask" itemSubjectRef="_isSysAdminTaskItem"/>
+    <bpmn2:property id="taskId" itemSubjectRef="_taskIdItem"/>
+    <bpmn2:property id="resubmit" itemSubjectRef="_resubmitItem"/>
+    <bpmn2:property id="contentMap" itemSubjectRef="_contentMapItem"/>
+    <bpmn2:property id="aborted" itemSubjectRef="_abortedItem"/>
+    <bpmn2:startEvent id="_1" name="StartProcess">
+      <bpmn2:outgoing>_1-_6</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:task id="_2" tns:taskName="CustomService" name="CustomWebService">
+      <bpmn2:extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script></tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script>/*Process webservice result*/
+java.util.Map mapContent = (java.util.Map)kcontext.getVariable(&quot;contentMap&quot;);
+kcontext.setVariable(&quot;retryFailed&quot;,mapContent.get(&quot;retryFailed&quot;));
+kcontext.setVariable(&quot;sysAdminQId&quot;,mapContent.get(&quot;sysAdminQId&quot;));
+kcontext.setVariable(&quot;aborted&quot;,false);</tns:script>
+        </tns:onExit-script>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_6-_2</bpmn2:incoming>
+      <bpmn2:outgoing>_2-_4</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="InputOutputSpecification_1">
+        <bpmn2:dataInput id="_2_IsReturnTypeMapInput" name="IsReturnTypeMap"/>
+        <bpmn2:dataInput id="_2_ServiceParamsInput" name="ServiceParams"/>
+        <bpmn2:dataInput id="_2_ServiceNameInput" name="ServiceName"/>
+        <bpmn2:dataInput id="_2_ServiceOperationNameInput" name="ServiceOperationName"/>
+        <bpmn2:inputSet id="InputSet_1">
+          <bpmn2:dataInputRefs>_2_IsReturnTypeMapInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_2_ServiceParamsInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_2_ServiceNameInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_2_ServiceOperationNameInput</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet id="OutputSet_1"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_1">
+        <bpmn2:sourceRef>returnTypeMap</bpmn2:sourceRef>
+        <bpmn2:targetRef>_2_IsReturnTypeMapInput</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_2">
+        <bpmn2:sourceRef>serviceParams</bpmn2:sourceRef>
+        <bpmn2:targetRef>_2_ServiceParamsInput</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_3">
+        <bpmn2:targetRef>_2_ServiceNameInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_1">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_1">#{serviceName}</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_2">_2_ServiceNameInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_4">
+        <bpmn2:targetRef>_2_ServiceOperationNameInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_2">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_3">#{serviceOperationName}</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_4">_2_ServiceOperationNameInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+    </bpmn2:task>
+    <bpmn2:endEvent id="_3" name="EndCustomWebService">
+      <bpmn2:incoming>_4-_3</bpmn2:incoming>
+      <bpmn2:terminateEventDefinition id="TerminateEventDefinition_1"/>
+    </bpmn2:endEvent>
+    <bpmn2:exclusiveGateway id="_6" name="Gateway" gatewayDirection="Converging">
+      <bpmn2:incoming>_1-_6</bpmn2:incoming>
+      <bpmn2:incoming>_7-_6</bpmn2:incoming>
+      <bpmn2:outgoing>_6-_2</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:endEvent id="_11" name="End">
+      <bpmn2:incoming>_7-_11</bpmn2:incoming>
+      <bpmn2:terminateEventDefinition id="TerminateEventDefinition_2"/>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="_6-_2" tns:priority="1" name="" sourceRef="_6" targetRef="_2"/>
+    <bpmn2:sequenceFlow id="_2-_4" tns:priority="1" name="" sourceRef="_2" targetRef="_4"/>
+    <bpmn2:sequenceFlow id="_1-_6" tns:priority="1" name="" sourceRef="_1" targetRef="_6"/>
+    <bpmn2:exclusiveGateway id="_4" name="'CustomWebService Retry Gateway'" gatewayDirection="Diverging">
+      <bpmn2:incoming>_2-_4</bpmn2:incoming>
+      <bpmn2:outgoing>_4-_3</bpmn2:outgoing>
+      <bpmn2:outgoing>_4-_5</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:sequenceFlow id="_4-_3" tns:priority="1" name="Webservice Success" sourceRef="_4" targetRef="_3">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_11" language="http://www.java.com/java">Boolean failed = (Boolean)kcontext.getVariable(&quot;retryFailed&quot;);
+	if(failed){ 
+			return false;
+		}
+	else return true; 
+</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="_4-_5" tns:priority="1" name="Retry Failed" sourceRef="_4" targetRef="_5">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_12" language="http://www.java.com/java">Boolean failed = (Boolean)kcontext.getVariable(&quot;retryFailed&quot;);
+System.out.println(&quot;Failed? &quot;+failed);
+	if(failed){ 
+		System.out.println(&quot;Retry Failed&quot;);
+		return true;
+		}
+	else return false; </bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:userTask id="_5" name="System Administrator">
+      <bpmn2:extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println(&quot;The task has been redirected to a System Administrator&quot;);
+boolean sysAdmin = true;
+kcontext.setVariable(&quot;isSysAdminTask&quot;,sysAdmin);
+java.util.Map&lt;String, Object> contentData = (java.util.Map&lt;String, Object>)kcontext.getVariable(&quot;contentMap&quot;);
+contentData.put(&quot;mode&quot;,&quot;NORMAL&quot;);
+kcontext.setVariable(&quot;contentMap&quot;,contentData);</tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">              
+          <tns:script>boolean sysAdmin = false;
+kcontext.setVariable(&quot;isSysAdminTask&quot;,sysAdmin);</tns:script>
+        </tns:onExit-script>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_4-_5</bpmn2:incoming>
+      <bpmn2:outgoing>_5-_7</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="InputOutputSpecification_2">
+        <bpmn2:dataInput id="_5_ContentInput" name="Content"/>
+        <bpmn2:dataInput id="_5_CommentInput" name="Comment"/>
+        <bpmn2:dataInput id="_5_TaskNameInput" name="TaskName"/>
+        <bpmn2:dataInput id="_5_GroupIdInput" name="GroupId"/>
+        <bpmn2:dataOutput id="_5_myMapForTaskOutput" name="myMapForTask"/>
+        <bpmn2:inputSet id="InputSet_2">
+          <bpmn2:dataInputRefs>_5_ContentInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_5_CommentInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_5_TaskNameInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_5_GroupIdInput</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet id="OutputSet_2">
+          <bpmn2:dataOutputRefs>_5_myMapForTaskOutput</bpmn2:dataOutputRefs>
+        </bpmn2:outputSet>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_5">
+        <bpmn2:sourceRef>contentMap</bpmn2:sourceRef>
+        <bpmn2:targetRef>_5_ContentInput</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_6">
+        <bpmn2:targetRef>_5_CommentInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_3">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_5">A webservice failed task goes to the System Administrator</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_6">_5_CommentInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_7">
+        <bpmn2:targetRef>_5_TaskNameInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_4">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_7">System Administrator</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_8">_5_TaskNameInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_8">
+        <bpmn2:targetRef>_5_GroupIdInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_5">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_9">#{sysAdminQId}</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_10">_5_GroupIdInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataOutputAssociation id="DataOutputAssociation_1">
+        <bpmn2:sourceRef>_5_myMapForTaskOutput</bpmn2:sourceRef>
+        <bpmn2:targetRef>contentMap</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="_5-_7" tns:priority="1" name="" sourceRef="_5" targetRef="_7"/>
+    <bpmn2:exclusiveGateway id="_7" name="'CustomWebService Abort Gateway'" gatewayDirection="Diverging">
+      <bpmn2:incoming>_5-_7</bpmn2:incoming>
+      <bpmn2:outgoing>_7-_6</bpmn2:outgoing>
+      <bpmn2:outgoing>_7-_11</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:sequenceFlow id="_7-_6" tns:priority="1" name="Resubmit" sourceRef="_7" targetRef="_6">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_13" language="http://www.java.com/java">java.util.Map mapContent = (java.util.Map)kcontext.getVariable(&quot;contentMap&quot;);
+Boolean abort = (Boolean)mapContent.get(&quot;abort&quot;);
+if(!abort){
+System.out.println(&quot;Resubmitting process&quot;);
+return true;
+}
+else{
+return false;
+}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="_7-_11" tns:priority="1" name="Abort" sourceRef="_7" targetRef="_11">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_14" language="http://www.java.com/java">java.util.Map mapContent = (java.util.Map)kcontext.getVariable(&quot;contentMap&quot;);
+Boolean abort = (Boolean)mapContent.get(&quot;abort&quot;);
+if(abort){
+System.out.println(&quot;Aborting process&quot;);
+kcontext.setVariable(&quot;aborted&quot;,true);
+return true;
+}
+else{
+return false;
+}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_1" bpmnElement="CustomService">
+      <bpmndi:BPMNShape id="BPMNShape_StartEvent_1" bpmnElement="_1">
+        <dc:Bounds height="48.0" width="48.0" x="13.0" y="276.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_Task_1" bpmnElement="_2">
+        <dc:Bounds height="48.0" width="100.0" x="176.0" y="279.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_1" bpmnElement="_3">
+        <dc:Bounds height="48.0" width="48.0" x="595.0" y="279.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ExclusiveGateway_1" bpmnElement="_4">
+        <dc:Bounds height="48.0" width="48.0" x="353.0" y="278.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ExclusiveGateway_2" bpmnElement="_6">
+        <dc:Bounds height="48.0" width="48.0" x="89.0" y="275.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ExclusiveGateway_3" bpmnElement="_7">
+        <dc:Bounds height="48.0" width="48.0" x="356.0" y="0.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_2" bpmnElement="_11">
+        <dc:Bounds height="48.0" width="48.0" x="579.0" y="0.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_1" bpmnElement="_5">
+        <dc:Bounds height="48.0" width="100.0" x="329.0" y="190.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="_6-_2" sourceElement="BPMNShape_ExclusiveGateway_2" targetElement="BPMNShape_Task_1">
+        <di:waypoint xsi:type="dc:Point" x="113.0" y="299.0"/>
+        <di:waypoint xsi:type="dc:Point" x="226.0" y="303.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_2" bpmnElement="_4-_3" sourceElement="BPMNShape_ExclusiveGateway_1" targetElement="BPMNShape_EndEvent_1">
+        <di:waypoint xsi:type="dc:Point" x="402.0" y="302.0"/>
+        <di:waypoint xsi:type="dc:Point" x="488.0" y="302.0"/>
+        <di:waypoint xsi:type="dc:Point" x="488.0" y="303.0"/>
+        <di:waypoint xsi:type="dc:Point" x="595.0" y="303.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="_2-_4" sourceElement="BPMNShape_Task_1" targetElement="BPMNShape_ExclusiveGateway_1">
+        <di:waypoint xsi:type="dc:Point" x="276.0" y="303.0"/>
+        <di:waypoint xsi:type="dc:Point" x="310.0" y="303.0"/>
+        <di:waypoint xsi:type="dc:Point" x="310.0" y="302.0"/>
+        <di:waypoint xsi:type="dc:Point" x="353.0" y="302.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_4" bpmnElement="_4-_5" sourceElement="BPMNShape_ExclusiveGateway_1" targetElement="BPMNShape_UserTask_1">
+        <di:waypoint xsi:type="dc:Point" x="377.0" y="278.0"/>
+        <di:waypoint xsi:type="dc:Point" x="377.0" y="239.0"/>
+        <di:waypoint xsi:type="dc:Point" x="379.0" y="239.0"/>
+        <di:waypoint xsi:type="dc:Point" x="379.0" y="238.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_5" bpmnElement="_1-_6" sourceElement="BPMNShape_StartEvent_1" targetElement="BPMNShape_ExclusiveGateway_2">
+        <di:waypoint xsi:type="dc:Point" x="37.0" y="300.0"/>
+        <di:waypoint xsi:type="dc:Point" x="113.0" y="299.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_6" bpmnElement="_7-_6" sourceElement="BPMNShape_ExclusiveGateway_3" targetElement="BPMNShape_ExclusiveGateway_2">
+        <di:waypoint xsi:type="dc:Point" x="356.0" y="24.0"/>
+        <di:waypoint xsi:type="dc:Point" x="113.0" y="24.0"/>
+        <di:waypoint xsi:type="dc:Point" x="113.0" y="275.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_7" bpmnElement="_5-_7" sourceElement="BPMNShape_UserTask_1" targetElement="BPMNShape_ExclusiveGateway_3">
+        <di:waypoint xsi:type="dc:Point" x="379.0" y="190.0"/>
+        <di:waypoint xsi:type="dc:Point" x="379.0" y="68.0"/>
+        <di:waypoint xsi:type="dc:Point" x="380.0" y="68.0"/>
+        <di:waypoint xsi:type="dc:Point" x="380.0" y="49.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_8" bpmnElement="_7-_11" sourceElement="BPMNShape_ExclusiveGateway_3" targetElement="BPMNShape_EndEvent_2">
+        <di:waypoint xsi:type="dc:Point" x="405.0" y="24.0"/>
+        <di:waypoint xsi:type="dc:Point" x="483.0" y="24.0"/>
+        <di:waypoint xsi:type="dc:Point" x="483.0" y="24.0"/>
+        <di:waypoint xsi:type="dc:Point" x="579.0" y="24.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>

@@ -40,8 +40,33 @@
 		<level value="DEBUG" />
 	</logger>
 	
+	<logger name="org.jboss.jbpm.processbox.listeners.ProcessBoxProcessListener">
+		<level value="OFF" />
+	</logger>
+	
+	<logger name="org.jboss.jbpm.processbox.listeners.ProcessBoxTaskListener">
+		<level value="OFF" />
+	</logger>			
+	
+	<logger name="org.jbpm.task.service.UserGroupCallbackManager">
+		<level value="OFF" />
+	</logger>
+	
+	<logger name="bitronix.tm">
+		<level value="OFF" />
+	</logger>
+	
+	<logger name="org.apache">
+		<level value="OFF" />
+	</logger>			
+	
+	
+	<logger name="org.jbpm.task.service.TaskServiceSession">
+		<level value="OFF" />
+	</logger>	
+				
 	<logger name="org.hibernate">
-		<level value=NONE />
+		<level value="OFF" />
 	</logger>
 	
 <!-- 	<logger name="org.sample">
@@ -49,7 +74,7 @@
 	</logger> -->
 
 	<root>
-		<priority value="ERROR" />
+		<priority value="ALL" />
 		<appender-ref ref="CONSOLE" />
 	</root>
 </log4j:configuration>

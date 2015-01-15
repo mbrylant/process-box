@@ -15,7 +15,7 @@
  *
  */
 
-package org.jboss.jbpm.processbox.listeners;
+package org.jboss.jbpm.processbox.listeners.other;
 
 import org.drools.event.rule.ObjectInsertedEvent;
 import org.drools.event.rule.ObjectRetractedEvent;
