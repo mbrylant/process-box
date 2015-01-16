@@ -164,11 +164,11 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		private Container start(List<String> models) throws ContainerInitializationException {	
 			KnowledgeBuilderConfiguration conf =
 					KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
-					 ((PackageBuilderConfiguration)conf).loadSemanticModule("ProcessBoxBPMN2SemanticModule.conf");
+//					 ((PackageBuilderConfiguration)conf).loadSemanticModule("ProcessBoxBPMN2SemanticModule.conf");
 					 
 //					 DefaultSemanticModule module = new DefaultSemanticModule("ProcessBoxBPMN2SemanticModule.conf");
 			
-//			((PackageBuilderConfiguration)conf).initSemanticModules();
+			((PackageBuilderConfiguration)conf).initSemanticModules();
 			
 			
 			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(conf);

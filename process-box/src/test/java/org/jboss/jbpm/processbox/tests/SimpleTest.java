@@ -29,6 +29,8 @@ import org.jboss.jbpm.processbox.core.ProcessBoxTest;
 import org.jboss.jbpm.processbox.events.base.Events;
 import org.jboss.jbpm.processbox.handlers.ConfigurableMockWorkItemHandler;
 import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
+import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.jbpm.ruleflow.core.RuleFlowProcessFactory;
 import org.jbpm.task.query.TaskSummary;
 import org.junit.Test;
 
@@ -48,6 +50,23 @@ public class SimpleTest extends ProcessBoxTest {
 //		container.workItemHandler("Service Task", new ConfigurableMockWorkItemHandler(true));
 		ConfigurableMockWorkItemHandler customServiceHandler = new ConfigurableMockWorkItemHandler(true);
 		
+		
+		
+		RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("org.jbpm.process");
+		factory
+			// header
+			.name("My process").packageName("org.jbpm")
+			// nodes
+			.startNode(1).name("Start").done()
+//			.actionNode(2).name("Action")
+//				.action("java", "System.out.println(\"Action\");").done()
+//			.endNode(3).name("End").done()
+//			.workItemNode(2).name()
+			.endNode(2).name("End").done()
+			// connections
+			.connection(1, 2);
+//			.connection(2, 3);
+		RuleFlowProcess process = factory.validate().getProcess();
 		
 		Map<String, Object> serviceTask2outcome = new HashMap<String, Object>();
 		String serviceName = "ABC";
