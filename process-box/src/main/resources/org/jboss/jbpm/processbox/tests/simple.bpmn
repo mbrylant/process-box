@@ -151,11 +151,16 @@ kcontext.setVariable(&quot;retryFailed&quot;,mapContent.get(&quot;retryFailed&qu
 </tns:script>
         </tns:onExit-script>
       </bpmn2:extensionElements>
-      <bpmn2:incoming>SequenceFlow_12</bpmn2:incoming>
+      <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_13</bpmn2:outgoing>
     </bpmn2:task>
-    <bpmn2:sequenceFlow id="SequenceFlow_12" tns:priority="1" name="" sourceRef="_4" targetRef="ServiceTask_3"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_12" tns:priority="1" name="" sourceRef="_4" targetRef="CallActivity_1"/>
     <bpmn2:sequenceFlow id="SequenceFlow_13" tns:priority="1" name="" sourceRef="ServiceTask_3" targetRef="_5"/>
+    <bpmn2:callActivity id="CallActivity_1" tns:waitForCompletion="true" tns:independent="false" name="Call Sub Process" calledElement="sub.process">
+      <bpmn2:incoming>SequenceFlow_12</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
+    </bpmn2:callActivity>
+    <bpmn2:sequenceFlow id="SequenceFlow_1" tns:priority="1" sourceRef="CallActivity_1" targetRef="ServiceTask_3"/>
   </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Simple Process">
     <bpmndi:BPMNPlane id="BPMNPlane_Process_1" bpmnElement="process.simple">
@@ -174,6 +179,9 @@ kcontext.setVariable(&quot;retryFailed&quot;,mapContent.get(&quot;retryFailed&qu
       <bpmndi:BPMNShape id="BPMNShape_ServiceTask_3" bpmnElement="ServiceTask_3">
         <dc:Bounds height="50.0" width="110.0" x="555.0" y="205.0"/>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_CallActivity_1" bpmnElement="CallActivity_1" isExpanded="true">
+        <dc:Bounds height="50.0" width="110.0" x="380.0" y="313.0"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="_5-_3" sourceElement="BPMNShape_UserTask_2" targetElement="BPMNShape_EndEvent_1">
         <di:waypoint xsi:type="dc:Point" x="940.0" y="238.0"/>
         <di:waypoint xsi:type="dc:Point" x="1070.0" y="238.0"/>
@@ -185,17 +193,21 @@ kcontext.setVariable(&quot;retryFailed&quot;,mapContent.get(&quot;retryFailed&qu
         <di:waypoint xsi:type="dc:Point" x="38.0" y="237.0"/>
         <di:waypoint xsi:type="dc:Point" x="160.0" y="237.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_15" bpmnElement="SequenceFlow_12" sourceElement="BPMNShape_UserTask_1" targetElement="BPMNShape_ServiceTask_3">
-        <di:waypoint xsi:type="dc:Point" x="260.0" y="237.0"/>
-        <di:waypoint xsi:type="dc:Point" x="535.0" y="237.0"/>
-        <di:waypoint xsi:type="dc:Point" x="535.0" y="230.0"/>
-        <di:waypoint xsi:type="dc:Point" x="555.0" y="230.0"/>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_15" bpmnElement="SequenceFlow_12" sourceElement="BPMNShape_UserTask_1" targetElement="BPMNShape_CallActivity_1">
+        <di:waypoint xsi:type="dc:Point" x="210.0" y="261.0"/>
+        <di:waypoint xsi:type="dc:Point" x="210.0" y="338.0"/>
+        <di:waypoint xsi:type="dc:Point" x="380.0" y="338.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_16" bpmnElement="SequenceFlow_13" sourceElement="BPMNShape_ServiceTask_3" targetElement="BPMNShape_UserTask_2">
         <di:waypoint xsi:type="dc:Point" x="665.0" y="230.0"/>
         <di:waypoint xsi:type="dc:Point" x="820.0" y="230.0"/>
         <di:waypoint xsi:type="dc:Point" x="820.0" y="238.0"/>
         <di:waypoint xsi:type="dc:Point" x="840.0" y="238.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="SequenceFlow_1" sourceElement="BPMNShape_CallActivity_1" targetElement="BPMNShape_ServiceTask_3">
+        <di:waypoint xsi:type="dc:Point" x="490.0" y="338.0"/>
+        <di:waypoint xsi:type="dc:Point" x="610.0" y="338.0"/>
+        <di:waypoint xsi:type="dc:Point" x="610.0" y="255.0"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

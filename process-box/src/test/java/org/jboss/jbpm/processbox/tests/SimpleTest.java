@@ -21,19 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.drools.runtime.process.ProcessInstance;
 import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.core.ProcessBoxTest;
 import org.jboss.jbpm.processbox.events.base.Events;
-import org.jboss.jbpm.processbox.events.instance.typed.ProcessBoxInstanceCompletedEvent;
-import org.jboss.jbpm.processbox.events.instance.typed.ProcessBoxInstanceStartEvent;
-import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskCompletedEvent;
-import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskCreatedEvent;
 import org.jboss.jbpm.processbox.handlers.ConfigurableMockWorkItemHandler;
-import org.jbpm.bpmn2.handler.ServiceTaskHandler;
 import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
 import org.jbpm.task.query.TaskSummary;
 import org.junit.Test;
@@ -45,11 +39,15 @@ public class SimpleTest extends ProcessBoxTest {
 	public void testSimpleProcess() throws InterruptedException, UnexpectedProcessBoxEventException, ContainerInitializationException, ExecutionException, TimeoutException {
 						
 		
-		Container container = new Container("org/jboss/jbpm/processbox/tests/simple.bpmn");
+//		Container container = new Container("org/jboss/jbpm/processbox/tests/simple.bpmn");
+		Container container = new Container("org/jboss/jbpm/processbox/tests/simple.bpmn", "org/jboss/jbpm/processbox/tests/subprocess.bpmn2" );
 //		Container container = new Container("com/sample/simple.bpmn2");
 		container.workItemHandler("Human Task", new CommandBasedWSHumanTaskHandler(container.getSession()));
+		
+		container.workItemHandler("callActivity", new CommandBasedWSHumanTaskHandler(container.getSession()));
 //		container.workItemHandler("Service Task", new ConfigurableMockWorkItemHandler(true));
 		ConfigurableMockWorkItemHandler customServiceHandler = new ConfigurableMockWorkItemHandler(true);
+		
 		
 		Map<String, Object> serviceTask2outcome = new HashMap<String, Object>();
 		String serviceName = "ABC";
@@ -73,7 +71,7 @@ public class SimpleTest extends ProcessBoxTest {
 		
 					
 		ProcessInstance processInstance = container.startProcess("process.simple", serviceTask2outcome);				
-		waitUntilEvent(Events.AfterProcessStarted);
+		waitUntilEvent(Events.ProcessStarted);
 		
 //		log.debug(String.format("Process Instance {%s} started in contaier", processBoxInstanceStartEvent.getId()));
 		assertProcessInstanceActive(processInstance.getId(), container.getSession());
@@ -107,6 +105,8 @@ public class SimpleTest extends ProcessBoxTest {
 		
 		List<TaskSummary> tasksAfetrAboort = taskService.getTasksAssignedAsPotentialOwner("mary", "en-UK");
 		assertEquals(1, tasksAfetrAboort.size());
+		
+		assertNodeTriggered(processInstance.getId(), "BLAH");
 		
 		
 		

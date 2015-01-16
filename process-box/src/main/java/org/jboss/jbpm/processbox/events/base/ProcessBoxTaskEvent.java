@@ -1,5 +1,7 @@
 package org.jboss.jbpm.processbox.events.base;
 
+import org.drools.event.ProcessNodeTriggeredEventImpl;
+import org.drools.runtime.process.NodeInstance;
 import org.jbpm.task.event.TaskUserEvent;
 
 public abstract class ProcessBoxTaskEvent implements ProcessBoxEvent {
@@ -23,5 +25,13 @@ public abstract class ProcessBoxTaskEvent implements ProcessBoxEvent {
 	public String getSubType() {
 		return event.getClass().getSimpleName();
 	}
+	
+	public String getDescription(){
+		String source = event.getSource().toString();
+		String name = event.getUserId();
+		long taskId = event.getTaskId();
+		return String.format("Task Event id {%s} type {%s} subtype {%s} generated from {%s} for username name {%s} task id {%d}", this.getId(), this.getType(), this.getSubType(), source, name, taskId);
+}
+		
 
 }

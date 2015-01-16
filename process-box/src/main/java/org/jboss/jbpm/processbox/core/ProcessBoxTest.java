@@ -18,6 +18,7 @@
 package org.jboss.jbpm.processbox.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,20 +31,21 @@ import java.util.concurrent.TimeoutException;
 
 import org.drools.KnowledgeBase;
 import org.drools.builder.KnowledgeBuilder;
+import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
-import org.drools.event.process.ProcessEvent;
+import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.io.ResourceFactory;
 import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
+import org.drools.xml.DefaultSemanticModule;
 import org.h2.tools.Server;
 import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.events.base.Events;
 import org.jboss.jbpm.processbox.events.base.ProcessBoxEvent;
-import org.jboss.jbpm.processbox.events.base.ProcessBoxInstanceEvent;
 import org.jboss.jbpm.processbox.listeners.ProcessBoxProcessListener;
 import org.jboss.jbpm.processbox.listeners.ProcessBoxTaskListener;
 import org.jboss.jbpm.processbox.listeners.other.DefaultAgendaEventListener;
@@ -52,7 +54,6 @@ import org.jboss.jbpm.processbox.model.DefaultProcessBoxNode;
 import org.jboss.jbpm.processbox.model.Initialized;
 import org.jboss.jbpm.processbox.model.NodeId;
 import org.jboss.jbpm.processbox.model.ProcessBoxNode;
-import org.jbpm.task.event.TaskUserEvent;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.local.LocalTaskService;
@@ -132,6 +133,16 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 			this.INITIALIZED = true;
 		}
 		
+		public Container(List<String> models) throws ContainerInitializationException{
+			start(models);
+			this.INITIALIZED = true;
+		}
+		
+		public Container(String... models) throws ContainerInitializationException{
+			start(Arrays.asList(models));
+			this.INITIALIZED = true;
+		}
+		
 		public Container() {			
 		}
 		
@@ -146,11 +157,21 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		
 		public void close(){
 			logger.close();
+			ksession.dispose();
 		}
 		
 		
-		private Container start(List<String> models) throws ContainerInitializationException {			
-			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+		private Container start(List<String> models) throws ContainerInitializationException {	
+			KnowledgeBuilderConfiguration conf =
+					KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
+					 ((PackageBuilderConfiguration)conf).loadSemanticModule("ProcessBoxBPMN2SemanticModule.conf");
+					 
+//					 DefaultSemanticModule module = new DefaultSemanticModule("ProcessBoxBPMN2SemanticModule.conf");
+			
+//			((PackageBuilderConfiguration)conf).initSemanticModules();
+			
+			
+			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(conf);
 			for (String model: models){
 				kbuilder.add(ResourceFactory.newClassPathResource(model), ResourceType.BPMN2);
 			}
@@ -212,10 +233,10 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		log.debug(String.format("Listening for events of type {%s}", eventType.toString()));
 		
 		while (event== null || !event.getSubType().equalsIgnoreCase(eventType.toString())) {
-			log.debug(String.format("Skipping event {%s}", event.getSubType()));
+			log.debug(String.format("Skipping event {%s}", event.getDescription()));
 			event = queue.take();
 		}		
-		log.debug(String.format("Matched event {%s}", event.getSubType()));
+		log.debug(String.format("Matched event {%s}", event.getDescription()));
 		return event;
 	}
 	
