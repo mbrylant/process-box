@@ -24,3 +24,4 @@ tmp/
 *.launch
 # sbteclipse plugin
 .target
+process-box.iml
