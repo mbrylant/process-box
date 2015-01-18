@@ -29,8 +29,6 @@ import org.jboss.jbpm.processbox.core.ProcessBoxTest;
 import org.jboss.jbpm.processbox.events.base.Events;
 import org.jboss.jbpm.processbox.handlers.ConfigurableMockWorkItemHandler;
 import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
-import org.jbpm.ruleflow.core.RuleFlowProcess;
-import org.jbpm.ruleflow.core.RuleFlowProcessFactory;
 import org.jbpm.task.query.TaskSummary;
 import org.junit.Test;
 
@@ -39,44 +37,21 @@ public class SimpleTest extends ProcessBoxTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testSimpleProcess() throws InterruptedException, UnexpectedProcessBoxEventException, ContainerInitializationException, ExecutionException, TimeoutException {
-						
-		
+							
 //		Container container = new Container("org/jboss/jbpm/processbox/tests/simple.bpmn");
-		Container container = new Container("org/jboss/jbpm/processbox/tests/simple.bpmn", "org/jboss/jbpm/processbox/tests/subprocess.bpmn2" );
+//		Container container = new Container("org/jboss/jbpm/processbox/tests/simple.bpmn", "org/jboss/jbpm/processbox/tests/subprocess.bpmn2");
 //		Container container = new Container("com/sample/simple.bpmn2");
-		container.workItemHandler("Human Task", new CommandBasedWSHumanTaskHandler(container.getSession()));
 		
-		container.workItemHandler("callActivity", new CommandBasedWSHumanTaskHandler(container.getSession()));
-//		container.workItemHandler("Service Task", new ConfigurableMockWorkItemHandler(true));
 		ConfigurableMockWorkItemHandler customServiceHandler = new ConfigurableMockWorkItemHandler(true);
-		
-		
-		
-		RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("org.jbpm.process");
-		factory
-			// header
-			.name("My process").packageName("org.jbpm")
-			// nodes
-			.startNode(1).name("Start").done()
-//			.actionNode(2).name("Action")
-//				.action("java", "System.out.println(\"Action\");").done()
-//			.endNode(3).name("End").done()
-//			.workItemNode(2).name()
-			.endNode(2).name("End").done()
-			// connections
-			.connection(1, 2);
-//			.connection(2, 3);
-		RuleFlowProcess process = factory.validate().getProcess();
-		
+
 		Map<String, Object> serviceTask2outcome = new HashMap<String, Object>();
-		String serviceName = "ABC";
-		String serviceOperationName = "XYZ";
-		Map<String, Object> serviceParams = new HashMap<String, Object>(); 		
+		final String serviceName = "ABC";
+		final String serviceOperationName = "XYZ";
+		final Map<String, Object> serviceParams = new HashMap<String, Object>(); 		
 		boolean isReturnTypeMap = false;
-		Map<String, Object> contentMap = new HashMap<String, Object>();
+		final Map<String, Object> contentMap = new HashMap<String, Object>();
 		contentMap.put("abort", true);
-		
-		
+				
 		serviceTask2outcome.put("serviceParams", serviceParams);
 		serviceTask2outcome.put("serviceName", serviceName);
 		serviceTask2outcome.put("returnTypeMap", isReturnTypeMap);
@@ -85,11 +60,15 @@ public class SimpleTest extends ProcessBoxTest {
 		
 		customServiceHandler.outcomeForNode("Service Task 2", serviceTask2outcome);
 		
-		container.workItemHandler("Custom Service", customServiceHandler);
 		
-		
-					
-		ProcessInstance processInstance = container.startProcess("process.simple", serviceTask2outcome);				
+		Container container = new Container();
+		ProcessInstance processInstance = container.resource(process("org/jboss/jbpm/processbox/tests/simple.bpmn"))
+				 .resource(subProcess("Mock Sub Process", "sub.process"))		
+				 .init()
+				 .workItemHandler("Human Task", new CommandBasedWSHumanTaskHandler(container.getSession()))
+				 .workItemHandler("Custom Service", customServiceHandler)
+				 .startProcess("process.simple", serviceTask2outcome);
+												
 		waitUntilEvent(Events.ProcessStarted);
 		
 //		log.debug(String.format("Process Instance {%s} started in contaier", processBoxInstanceStartEvent.getId()));
