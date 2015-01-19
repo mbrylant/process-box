@@ -30,10 +30,10 @@
 	</build>
 
 	<repositories>
-	 <repository>
-        <id>mvn-repo</id>
-        <url>https://github.com/mbrylant/mvn-repo/tree/master/releases</url>
-    </repository>
+		<repository>
+			<id>mvn-repo</id>
+			<url>https://github.com/mbrylant/mvn-repo/tree/master/releases</url>
+		</repository>
 		<repository>
 			<id>jboss-public-repository-group</id>
 			<name>JBoss Public Repository Group</name>
@@ -275,19 +275,21 @@
 			<version>4.1.4.RELEASE</version>
 		</dependency>
 
-<!-- 		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjrt</artifactId>
-			<version>1.8.4</version>
-		</dependency>
-
+		<!-- <dependency> <groupId>org.aspectj</groupId> <artifactId>aspectjrt</artifactId> 
+			<version>1.8.4</version> </dependency> <dependency> <groupId>org.aspectj</groupId> 
+			<artifactId>aspectjweaver</artifactId> <version>1.8.4</version> </dependency> -->
 
 		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
-			<version>1.8.4</version>
-		</dependency> -->
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.3.2</version>
+		</dependency>
 
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
 
 
 

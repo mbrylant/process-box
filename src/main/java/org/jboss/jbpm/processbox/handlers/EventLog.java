@@ -3,8 +3,6 @@ package org.jboss.jbpm.processbox.handlers;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.drools.event.process.ProcessEvent;
-
 public class EventLog {
 	
 	private static EventLog eventLog;

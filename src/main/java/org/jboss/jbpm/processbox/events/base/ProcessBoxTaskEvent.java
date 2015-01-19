@@ -1,7 +1,5 @@
 package org.jboss.jbpm.processbox.events.base;
 
-import org.drools.event.ProcessNodeTriggeredEventImpl;
-import org.drools.runtime.process.NodeInstance;
 import org.jbpm.task.event.TaskUserEvent;
 
 public abstract class ProcessBoxTaskEvent implements ProcessBoxEvent {

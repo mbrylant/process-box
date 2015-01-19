@@ -19,15 +19,8 @@ package org.jboss.jbpm.processbox.listeners;
 
 import java.util.concurrent.BlockingQueue;
 
-import org.drools.event.process.ProcessEvent;
-import org.drools.event.process.ProcessNodeEvent;
 import org.jboss.jbpm.processbox.events.base.ProcessBoxEvent;
-import org.jboss.jbpm.processbox.events.instance.DefaultProcessBoxInstanceEvent;
 import org.jboss.jbpm.processbox.events.task.DefaultProcessBoxTaskEvent;
-import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskCompletedEvent;
-import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskCreatedEvent;
-import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskFailedEvent;
-import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskSkippedEvent;
 import org.jboss.jbpm.processbox.handlers.EventBuffer;
 import org.jboss.jbpm.processbox.handlers.EventLog;
 import org.jbpm.task.event.TaskClaimedEvent;

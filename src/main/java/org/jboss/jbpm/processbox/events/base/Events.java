@@ -19,7 +19,9 @@ public enum Events {
 	TaskStarted("TaskClaimedEvent"),
 	TaskFailed("TaskFailedEvent"), 
 	TaskSkipped("TaskSkippedEvent"),
-	TaskCompleted("TaskCompletedEvent");
+	TaskCompleted("TaskCompletedEvent"),
+	
+	ProcessBoxError("ProcessBoxError");
 	
 		
 	private String name;

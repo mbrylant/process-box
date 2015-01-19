@@ -44,7 +44,6 @@ import org.jbpm.bpmn2.xml.ServiceTaskHandler;
 import org.jbpm.bpmn2.xml.SplitHandler;
 import org.jbpm.bpmn2.xml.StartEventHandler;
 import org.jbpm.bpmn2.xml.StateNodeHandler;
-import org.jbpm.bpmn2.xml.SubProcessHandler;
 import org.jbpm.bpmn2.xml.TaskHandler;
 import org.jbpm.bpmn2.xml.ThrowLinkNodeHandler;
 import org.jbpm.bpmn2.xml.TimerNodeHandler;

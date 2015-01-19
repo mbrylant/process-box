@@ -3,8 +3,6 @@ package org.jboss.jbpm.processbox.handlers;
 import org.drools.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.xml.SubProcessHandler;
 import org.jbpm.workflow.core.Node;
-import org.jbpm.workflow.core.node.CompositeContextNode;
-import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -32,8 +30,7 @@ public class ConfigurableSubProcessHandler extends SubProcessHandler {
 	}
 	
 	
-    @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+	public Class<ConfigurableCompositeContextNode> generateNodeFor() {
     	System.out.println("this is awsome");
         return ConfigurableCompositeContextNode.class;
     }	

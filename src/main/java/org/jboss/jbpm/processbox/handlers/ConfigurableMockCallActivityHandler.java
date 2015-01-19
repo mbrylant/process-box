@@ -4,7 +4,6 @@ import org.drools.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.xml.CallActivityHandler;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.SubProcessNode;
-import org.jbpm.workflow.core.node.WorkItemNode;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.w3c.dom.Element;
@@ -28,7 +27,7 @@ public class ConfigurableMockCallActivityHandler extends CallActivityHandler {
 		return new ProcessBoxSubProcessNode();
 	}
 
-	public Class generateNodeFor() {
+	public Class<SubProcessNode> generateNodeFor() {
 		return SubProcessNode.class;
 	}
 

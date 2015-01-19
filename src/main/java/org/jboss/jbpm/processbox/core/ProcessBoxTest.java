@@ -48,8 +48,6 @@ import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.events.base.Events;
 import org.jboss.jbpm.processbox.events.base.ProcessBoxEvent;
 import org.jboss.jbpm.processbox.handlers.ProcessBoxSemanticModule;
-import org.jboss.jbpm.processbox.handlers.ProcessBoxSubProcessNode;
-import org.jboss.jbpm.processbox.handlers.ProcessBoxSubProcessNodeInstance;
 import org.jboss.jbpm.processbox.listeners.ProcessBoxProcessListener;
 import org.jboss.jbpm.processbox.listeners.ProcessBoxTaskListener;
 import org.jboss.jbpm.processbox.listeners.other.DefaultAgendaEventListener;
@@ -58,6 +56,7 @@ import org.jboss.jbpm.processbox.model.DefaultProcessBoxNode;
 import org.jboss.jbpm.processbox.model.Initialized;
 import org.jboss.jbpm.processbox.model.NodeId;
 import org.jboss.jbpm.processbox.model.ProcessBoxNode;
+import org.jboss.jbpm.processbox.model.PBProperties;
 import org.jbpm.bpmn2.xml.BPMNDISemanticModule;
 import org.jbpm.bpmn2.xml.XmlBPMNProcessDumper;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
@@ -67,9 +66,6 @@ import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.local.LocalTaskService;
 import org.jbpm.test.JBPMHelper;
 import org.jbpm.test.JbpmJUnitTestCase;
-import org.jbpm.workflow.core.node.SubProcessNode;
-import org.jbpm.workflow.instance.impl.NodeInstanceFactoryRegistry;
-import org.jbpm.workflow.instance.impl.factory.CreateNewNodeFactory;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,22 +115,30 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		}
 	}
 	
-	public TaskSummary getTask (String userName, String encoding){
+	protected TaskSummary getTask (String userName, String encoding){
 		List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner(userName, encoding); 
 		assertThat(tasks, is(not(empty())));
 		TaskSummary task = tasks.get(0);
 		return task;
 	}
 	
-	public ResourceWrapper process(String path){
+	protected PBProperties results() {
+		return new PBProperties();
+		}
+		
+	protected Map<String,Object> map() {
+		return new HashMap<String, Object>();
+	}
+	
+	protected ResourceWrapper process(String name, String id, String path){
 		return new ResourceWrapper(ResourceFactory.newClassPathResource(path), ResourceType.BPMN2);		
 	}
 	
-	public ResourceWrapper subProcess(String name, String id){	
-		return this.subProcess(name, id, "defaultPackage");
+	protected ResourceWrapper processMock(String name, String id){	
+		return this.processMock(name, id, "defaultPackage");
 	}
 	
-	public ResourceWrapper subProcess(String name, String id, String defaultPackage){		
+	protected ResourceWrapper processMock(String name, String id, String defaultPackage){		
 		RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("sub.process");
 		factory
 			.name("Sub Process").packageName("defaultPackage")
@@ -173,7 +177,7 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		
 		private KnowledgeRuntimeLogger logger;
 		
-		private org.drools.audit.KnowledgeRuntimeLoggerProviderImpl provider;
+//		private org.drools.audit.KnowledgeRuntimeLoggerProviderImpl provider;
 		private boolean INITIALIZED = false;
 		
 		public StatefulKnowledgeSession getSession() {
@@ -321,29 +325,33 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 	
 	@Async
 	public Future<ProcessBoxEvent> getAnyEvent() throws InterruptedException {	    
-	        return new AsyncResult<ProcessBoxEvent>( this.queue.take());
+	        return new AsyncResult<ProcessBoxEvent>( queue.take());
 	}
 	
 	@Async
-	public Future<ProcessBoxEvent> getSpecificEvent(Events eventType) throws InterruptedException {	    
+	public Future<ProcessBoxEvent> getSpecificEvent(Events eventType) throws InterruptedException, ProcessBoxConfigurationException {	    
 	        return new AsyncResult<ProcessBoxEvent>( waitUntilEvent(eventType));
 	}
 	
-	protected ProcessBoxEvent waitUntilOrTimeout(Events eventType, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+	protected ProcessBoxEvent waitUntilOrTimeout(Events eventType, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException, ProcessBoxConfigurationException {
 		Future<ProcessBoxEvent> eventFuture = getSpecificEvent(eventType);
 		return eventFuture.get(timeout, unit);
 		
 	}
 	
 	
-	protected ProcessBoxEvent waitUntilEvent(Events eventType) throws InterruptedException {
-		ProcessBoxEvent event = null;
-		event = queue.take();
-		
+	protected ProcessBoxEvent waitUntilEvent(Events eventType) throws InterruptedException, ProcessBoxConfigurationException {
 		log.debug(String.format("Listening for events of type {%s}", eventType.toString()));
+		ProcessBoxEvent event = null;
+		event = queue.take();		
 		
-		while (event== null || !event.getSubType().equalsIgnoreCase(eventType.toString())) {
-			log.debug(String.format("Skipping event {%s}", event.getDescription()));
+		while (!event.getSubType().equalsIgnoreCase(eventType.toString())) {
+			
+			if (event.getSubType().equalsIgnoreCase(Events.ProcessBoxError.toString())) {
+				throw new ProcessBoxConfigurationException(event.getDescription());
+			}
+			
+			log.debug(String.format("Skipping event id {%s} type {%s} subType {%s} description {%s}", event.getId(), event.getType(), event.getSubType(), event.getDescription()));
 			event = queue.take();
 		}		
 		log.debug(String.format("Matched event {%s}", event.getDescription()));

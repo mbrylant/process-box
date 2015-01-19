@@ -18,18 +18,12 @@
 package org.jboss.jbpm.processbox.tests;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.drools.runtime.process.ProcessInstance;
 import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.core.ProcessBoxTest;
-import org.jboss.jbpm.processbox.events.instance.typed.ProcessBoxInstanceCompletedEvent;
-import org.jboss.jbpm.processbox.events.instance.typed.ProcessBoxInstanceStartEvent;
-import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskCompletedEvent;
-import org.jboss.jbpm.processbox.events.task.typed.ProcessBoxTaskCreatedEvent;
 import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
-import org.jbpm.task.query.TaskSummary;
 import org.junit.Test;
 
 public class SimpleTest2 extends ProcessBoxTest {
@@ -43,9 +37,7 @@ public class SimpleTest2 extends ProcessBoxTest {
 	Map<String, Object> contentMap = new HashMap<String, Object>(); 
 	boolean isReturnTypeMap = false;
 	
-	@SuppressWarnings("deprecation")
 	@Test
-
 	public void testSimpleProcess2() throws InterruptedException, UnexpectedProcessBoxEventException, ContainerInitializationException {
 		
 		contentMap.put("abort", true);

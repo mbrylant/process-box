@@ -2,10 +2,11 @@ package org.jboss.jbpm.processbox.handlers;
 
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.CompositeContextNode;
-import org.jbpm.workflow.core.node.SubProcessNode;
 import org.xml.sax.Attributes;
 
 public class ConfigurableCompositeContextNode extends CompositeContextNode {
+
+	private static final long serialVersionUID = 6315867615040145703L;
 
 	public ConfigurableCompositeContextNode() {
 		// TODO Auto-generated constructor stub
@@ -16,7 +17,7 @@ public class ConfigurableCompositeContextNode extends CompositeContextNode {
 		return new ConfigurableCompositeContextNode();
 	}
 
-	public Class generateNodeFor() {
+	public Class<CompositeContextNode> generateNodeFor() {
 		return CompositeContextNode.class;
 	}
 
