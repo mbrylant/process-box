@@ -17,7 +17,6 @@
 
 package org.jboss.jbpm.processbox.tests;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -35,11 +34,29 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-public class SimpleTest extends ProcessBoxTest {						
+public class SimpleTest extends ProcessBoxTest {
+	
+	@Test
+	public void testPerentChild() throws ContainerInitializationException, InterruptedException, ProcessBoxConfigurationException {
+		
+		Container container = new Container();
+		ProcessInstance processInstance = 
+				container
+					.resource(process("reusableSubProcess.Parent", "org.plugtree.training.jbpm.reusablesubprocessparent", "com/sample/reusableSubProcess-Parent.bpmn"))
+					.resource(processMock("reusableSubProcess.Child", "org.plugtree.training.jbpm.reusablesubprocesschild"))
+					.init()
+					.workItemHandler("Custom Service", new ConfigurableMockWorkItemHandler(queue, true).withDefault())
+					.startProcess("org.plugtree.training.jbpm.reusablesubprocessparent", null);
+		
+		waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);
+		waitUntilEvent(Events.ProcessCompleted);				
+	}
 
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testSimpleProcess() throws InterruptedException, UnexpectedProcessBoxEventException, ContainerInitializationException, ExecutionException, TimeoutException, ProcessBoxConfigurationException {
+		
+		System.setProperty("processbox.debug.outcomes", "true");
 									
 		ConfigurableMockWorkItemHandler customServiceHandler = new ConfigurableMockWorkItemHandler(queue, true).withDefault();
 				
@@ -73,6 +90,10 @@ public class SimpleTest extends ProcessBoxTest {
 		taskService.complete(john.getId(), "john", null);		
 		waitUntilEvent(Events.TaskCompleted);
 		
+		waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);
+		
+		waitUntilEvent(Events.ProcessBoxNodeReturnEvent);
+		
 		waitUntilEvent(Events.TaskStarted);		
 		
 		
@@ -85,7 +106,6 @@ public class SimpleTest extends ProcessBoxTest {
 		List<TaskSummary> tasksAfetrAboort = taskService.getTasksAssignedAsPotentialOwner("mary", "en-UK");
 		assertEquals(1, tasksAfetrAboort.size());
 		
-		assertNodeTriggered(processInstance.getId(), "BLAH");
 			
 		container.close();
 		

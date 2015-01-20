@@ -37,6 +37,8 @@ import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.compiler.PackageBuilderConfiguration;
+import org.drools.event.ProcessVariableChangedEventImpl;
+import org.drools.event.process.ProcessEvent;
 import org.drools.io.ResourceFactory;
 import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
@@ -47,6 +49,7 @@ import org.h2.tools.Server;
 import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.events.base.Events;
 import org.jboss.jbpm.processbox.events.base.ProcessBoxEvent;
+import org.jboss.jbpm.processbox.events.base.ProcessBoxInstanceEvent;
 import org.jboss.jbpm.processbox.handlers.ProcessBoxSemanticModule;
 import org.jboss.jbpm.processbox.listeners.ProcessBoxProcessListener;
 import org.jboss.jbpm.processbox.listeners.ProcessBoxTaskListener;
@@ -138,12 +141,25 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		return this.processMock(name, id, "defaultPackage");
 	}
 	
-	protected ResourceWrapper processMock(String name, String id, String defaultPackage){		
-		RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("sub.process");
+	protected ResourceWrapper processMock(String name, String id, String processPackage, PBProperties properties){		
+		RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess(id);
 		factory
-			.name("Sub Process").packageName("defaultPackage")
+			.name(name).packageName(processPackage)
 			.startNode(1).name("Start").done()
-			.workItemNode(2).name("sub.process").workName("Custom Service").done()
+			.workItemNode(2).name(id).workName("Custom Service").done()
+			.endNode(3).name("End").done()
+			.connection(1, 2)
+			.connection(2, 3);
+		RuleFlowProcess process = factory.validate().getProcess();		
+		return new ResourceWrapper(ResourceFactory.newByteArrayResource(XmlBPMNProcessDumper.INSTANCE.dump(process).getBytes()), ResourceType.BPMN2);
+	}	
+	
+	protected ResourceWrapper processMock(String name, String id, String processPackage){		
+		RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess(id);
+		factory
+			.name(name).packageName(processPackage)
+			.startNode(1).name("Start").done()
+			.workItemNode(2).name(id).workName("Custom Service").done()
 			.endNode(3).name("End").done()
 			.connection(1, 2)
 			.connection(2, 3);
@@ -171,6 +187,8 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 	}
 	
 	public static class Container {
+		
+		private Logger log = LoggerFactory.getLogger(Container.class);
 		
 		private Map<String, ProcessInstance> instances = new HashMap<String, ProcessInstance>();
 		private StatefulKnowledgeSession ksession;
@@ -251,43 +269,21 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 			return this;
 		}
 		
-		
-		private Container start(List<String> models) throws ContainerInitializationException {	
-			
-			RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("sub.process");
-			factory
-				// header
-				.name("Sub Process").packageName("defaultPackage")
-				// nodes
-				.startNode(1).name("Start").done()
-//				.actionNode(2).name("Action")
-//					.action("java", "System.out.println(\"Action\");").done()
-//				.endNode(3).name("End").done()
-				.workItemNode(2).name("mock-response").workName("Custom Service").done()
-				.endNode(3).name("End").done()
-				// connections
-				.connection(1, 2)
-				.connection(2, 3);
-			RuleFlowProcess process = factory.validate().getProcess();
-			
+		@Deprecated
+		private Container start(List<String> models) throws ContainerInitializationException {							
 			KnowledgeBuilderConfiguration conf =
 					KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
-//					 ((PackageBuilderConfiguration)conf).loadSemanticModule("ProcessBoxBPMN2SemanticModule.conf");
-					 
-//					 DefaultSemanticModule module = new DefaultSemanticModule("ProcessBoxBPMN2SemanticModule.conf");
-			
+//			 ((PackageBuilderConfiguration)conf).loadSemanticModule("ProcessBoxBPMN2SemanticModule.conf");					 
+//			DefaultSemanticModule module = new DefaultSemanticModule("ProcessBoxBPMN2SemanticModule.conf");			
 //			((PackageBuilderConfiguration)conf).initSemanticModules();
 			((PackageBuilderConfiguration)conf).addSemanticModule( new ProcessBoxSemanticModule());
 			((PackageBuilderConfiguration)conf).addSemanticModule( new BPMNDISemanticModule());
-//			NodeInstanceFactoryRegistry.INSTANCE.register( ProcessBoxSubProcessNode.class, new CreateNewNodeFactory( ProcessBoxSubProcessNodeInstance.class ) );
-			
+//			NodeInstanceFactoryRegistry.INSTANCE.register( ProcessBoxSubProcessNode.class, new CreateNewNodeFactory( ProcessBoxSubProcessNodeInstance.class ) );			
 			
 			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(conf);
 			for (String model: models){
 				kbuilder.add(ResourceFactory.newClassPathResource(model), ResourceType.BPMN2);
 			}
-			
-			kbuilder.add(ResourceFactory.newByteArrayResource(XmlBPMNProcessDumper.INSTANCE.dump(process).getBytes()), ResourceType.BPMN2);
 			
 			KnowledgeBase kbase = kbuilder.newKnowledgeBase();
 			ksession = kbase.newStatefulKnowledgeSession();
@@ -296,6 +292,7 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 			return this;
 		}
 		
+		@Deprecated
 		private Container start(String model) throws ContainerInitializationException{
 			List<String> models = new ArrayList<String>();
 			models.add(model);
@@ -304,6 +301,7 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		
 		
 		public Container workItemHandler(String taskName, WorkItemHandler handler) {
+			this.log.debug(String.format("Setting workItemHandler for ksession {%s} workItemManager {%s}", ksession.getId(), ksession.getWorkItemManager()));
 			this.ksession.getWorkItemManager().registerWorkItemHandler(taskName, handler);
 			return this;			
 		}
@@ -351,20 +349,31 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 				throw new ProcessBoxConfigurationException(event.getDescription());
 			}
 			
-			log.debug(String.format("Skipping event id {%s} type {%s} subType {%s} description {%s}", event.getId(), event.getType(), event.getSubType(), event.getDescription()));
+			log.debug(String.format("Skipping event {%s}", describe(event)));
 			event = queue.take();
 		}		
-		log.debug(String.format("Matched event {%s}", event.getDescription()));
+		log.debug(String.format("Matched event {%s}", describe(event)));
 		return event;
+	}
+	
+	private String describe(ProcessBoxEvent event){
+		if (event.getSubType().equals("ProcessVariableChangedEventImpl")){
+			ProcessBoxInstanceEvent instanceEvent = (ProcessBoxInstanceEvent)event;
+			ProcessEvent  processEvent = instanceEvent.getEvent();
+			ProcessVariableChangedEventImpl variableChangedEvent = (ProcessVariableChangedEventImpl)processEvent;
+			String variable = variableChangedEvent.getVariableId();
+			Object oldValue = variableChangedEvent.getOldValue();
+			Object newValue = variableChangedEvent.getNewValue();
+			return String.format("id {%s} type {%s} subType {%s} description {%s} variable {%s} old value {%s} new value {%s}", event.getId(), event.getType(), event.getSubType(), event.getDescription(), variable, oldValue, newValue);
+		}		
+		return String.format("id {%s} type {%s} subType {%s} description {%s}", event.getId(), event.getType(), event.getSubType(), event.getDescription());							
 	}
 	
 	
 	protected ProcessBoxNode<Initialized> nodeId(String id){
 		return DefaultProcessBoxNode.with(new NodeId(id));
 	}
-	
-	
-	
+			
 	@Async
 	public Future<ProcessBoxEvent> getSpecificNode(ProcessBoxNode<Initialized> node) throws InterruptedException {	    
 	        return new AsyncResult<ProcessBoxEvent>( waitUntil(node));

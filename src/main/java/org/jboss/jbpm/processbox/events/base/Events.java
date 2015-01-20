@@ -21,7 +21,11 @@ public enum Events {
 	TaskSkipped("TaskSkippedEvent"),
 	TaskCompleted("TaskCompletedEvent"),
 	
+	ProcessBoxNodeInvocationEvent("ProcessBoxNodeInvocationEvent"),
+	ProcessBoxNodeReturnEvent("ProcessBoxNodeReturnEvent"),
 	ProcessBoxError("ProcessBoxError");
+	
+	
 	
 		
 	private String name;

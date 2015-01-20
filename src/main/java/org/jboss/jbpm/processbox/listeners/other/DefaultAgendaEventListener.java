@@ -36,121 +36,91 @@ public class DefaultAgendaEventListener implements org.drools.event.AgendaEventL
 
 	public void activationCancelled(ActivationCancelledEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
 	public void activationCreated(ActivationCreatedEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
 	public void afterActivationFired(AfterActivationFiredEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
 	public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
 	public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
 	public void agendaGroupPopped(AgendaGroupPoppedEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
 	public void agendaGroupPushed(AgendaGroupPushedEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
 	public void beforeActivationFired(BeforeActivationFiredEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
 	public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
 	public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent arg0, WorkingMemory arg1) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 	}
 
-	public void activationCancelled(
-			org.drools.event.rule.ActivationCancelledEvent arg0) {
+	public void activationCancelled(org.drools.event.rule.ActivationCancelledEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
-	public void activationCreated(
-			org.drools.event.rule.ActivationCreatedEvent arg0) {
+	public void activationCreated(org.drools.event.rule.ActivationCreatedEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
-	public void afterActivationFired(
-			org.drools.event.rule.AfterActivationFiredEvent arg0) {
+	public void afterActivationFired(org.drools.event.rule.AfterActivationFiredEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
-	public void afterRuleFlowGroupActivated(
-			org.drools.event.rule.RuleFlowGroupActivatedEvent arg0) {
+	public void afterRuleFlowGroupActivated(org.drools.event.rule.RuleFlowGroupActivatedEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
-	public void afterRuleFlowGroupDeactivated(
-			org.drools.event.rule.RuleFlowGroupDeactivatedEvent arg0) {
+	public void afterRuleFlowGroupDeactivated(org.drools.event.rule.RuleFlowGroupDeactivatedEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
-	public void agendaGroupPopped(
-			org.drools.event.rule.AgendaGroupPoppedEvent arg0) {
+	public void agendaGroupPopped(org.drools.event.rule.AgendaGroupPoppedEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
-	public void agendaGroupPushed(
-			org.drools.event.rule.AgendaGroupPushedEvent arg0) {
+	public void agendaGroupPushed(org.drools.event.rule.AgendaGroupPushedEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
-	public void beforeActivationFired(
-			org.drools.event.rule.BeforeActivationFiredEvent arg0) {
+	public void beforeActivationFired(org.drools.event.rule.BeforeActivationFiredEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
-	public void beforeRuleFlowGroupActivated(
-			org.drools.event.rule.RuleFlowGroupActivatedEvent arg0) {
+	public void beforeRuleFlowGroupActivated(org.drools.event.rule.RuleFlowGroupActivatedEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
-	public void beforeRuleFlowGroupDeactivated(
-			org.drools.event.rule.RuleFlowGroupDeactivatedEvent arg0) {
+	public void beforeRuleFlowGroupDeactivated(org.drools.event.rule.RuleFlowGroupDeactivatedEvent arg0) {
 		log.debug(arg0.toString());
-		System.out.println("x");
 		
 	}
 
