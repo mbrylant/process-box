@@ -17,13 +17,16 @@
 
 package org.jboss.jbpm.processbox.core;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -51,6 +54,7 @@ import org.jboss.jbpm.processbox.events.base.Events;
 import org.jboss.jbpm.processbox.events.base.ProcessBoxEvent;
 import org.jboss.jbpm.processbox.events.base.ProcessBoxInstanceEvent;
 import org.jboss.jbpm.processbox.handlers.ProcessBoxSemanticModule;
+import org.jboss.jbpm.processbox.handlers.ResultStackMockWorkItemHandler;
 import org.jboss.jbpm.processbox.listeners.ProcessBoxProcessListener;
 import org.jboss.jbpm.processbox.listeners.ProcessBoxTaskListener;
 import org.jboss.jbpm.processbox.listeners.other.DefaultAgendaEventListener;
@@ -90,7 +94,7 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 	protected PoolingDataSource datasource;
 	protected Server dbServer;
 	
-	protected static BlockingQueue<ProcessBoxEvent> queue = new LinkedBlockingQueue<ProcessBoxEvent>();
+	protected static BlockingQueue<ProcessBoxEvent> queue = new LinkedBlockingQueue<ProcessBoxEvent>(100);
 	
 	@Before
 	public void setup(){		
@@ -137,8 +141,8 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		return new ResourceWrapper(ResourceFactory.newClassPathResource(path), ResourceType.BPMN2);		
 	}
 	
-	protected ResourceWrapper processMock(String name, String id){	
-		return this.processMock(name, id, "defaultPackage");
+	protected ResultStackSubProcessMockBuilder processMock(String name, String id){	
+		return this.processMockStack(name, id, String.format("%s.package",name));
 	}
 	
 	protected ResourceWrapper processMock(String name, String id, String processPackage, PBProperties properties){		
@@ -154,17 +158,44 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		return new ResourceWrapper(ResourceFactory.newByteArrayResource(XmlBPMNProcessDumper.INSTANCE.dump(process).getBytes()), ResourceType.BPMN2);
 	}	
 	
-	protected ResourceWrapper processMock(String name, String id, String processPackage){		
+	public static class ResultStackSubProcessMockBuilder {
+		
+		private RuleFlowProcess model;
+		
+		private final Deque<PBProperties> propertiesStack;
+		
+		public ResultStackSubProcessMockBuilder(RuleFlowProcess model, String mockId){
+			this.model=model;
+			this.propertiesStack = new ArrayDeque<PBProperties>();
+			
+		}
+						
+		public ResultStackSubProcessMockBuilder result(PBProperties properties) {
+			this.propertiesStack.add(properties);
+			return this;
+		}
+		
+		public WorkItemHandler getHandler() {
+			return new ResultStackMockWorkItemHandler(queue, propertiesStack);
+		}
+		
+		public ResourceWrapper getResource() {
+			return new ResourceWrapper(ResourceFactory.newByteArrayResource(XmlBPMNProcessDumper.INSTANCE.dump(this.model).getBytes()), ResourceType.BPMN2);
+		}
+	}
+	
+	protected ResultStackSubProcessMockBuilder processMockStack(String name, String id, String processPackage){	
+		String mockId = UUID.randomUUID().toString();
 		RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess(id);
 		factory
 			.name(name).packageName(processPackage)
 			.startNode(1).name("Start").done()
-			.workItemNode(2).name(id).workName("Custom Service").done()
+			.workItemNode(2).name(id).workName(mockId).done()
 			.endNode(3).name("End").done()
 			.connection(1, 2)
 			.connection(2, 3);
 		RuleFlowProcess process = factory.validate().getProcess();		
-		return new ResourceWrapper(ResourceFactory.newByteArrayResource(XmlBPMNProcessDumper.INSTANCE.dump(process).getBytes()), ResourceType.BPMN2);
+		return new ResultStackSubProcessMockBuilder(process, mockId);
 	}	
 	
 	public static class ResourceWrapper {		
@@ -320,7 +351,6 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		}				
 	}
 	
-	
 	@Async
 	public Future<ProcessBoxEvent> getAnyEvent() throws InterruptedException {	    
 	        return new AsyncResult<ProcessBoxEvent>( queue.take());
@@ -333,13 +363,12 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 	
 	protected ProcessBoxEvent waitUntilOrTimeout(Events eventType, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException, ProcessBoxConfigurationException {
 		Future<ProcessBoxEvent> eventFuture = getSpecificEvent(eventType);
-		return eventFuture.get(timeout, unit);
-		
+		return eventFuture.get(timeout, unit);		
 	}
-	
-	
+		
 	protected ProcessBoxEvent waitUntilEvent(Events eventType) throws InterruptedException, ProcessBoxConfigurationException {
-		log.debug(String.format("Listening for events of type {%s}", eventType.toString()));
+		String uuid = UUID.randomUUID().toString();
+		log.debug(String.format("[%s] Listening for events of type {%s}", uuid, eventType.toString()));
 		ProcessBoxEvent event = null;
 		event = queue.take();		
 		
@@ -349,10 +378,10 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 				throw new ProcessBoxConfigurationException(event.getDescription());
 			}
 			
-			log.debug(String.format("Skipping event {%s}", describe(event)));
+			log.debug(String.format("[%s] Skipping event {%s}", uuid, describe(event)));
 			event = queue.take();
 		}		
-		log.debug(String.format("Matched event {%s}", describe(event)));
+		log.debug(String.format("[%s] Matched event {%s}", uuid, describe(event)));
 		return event;
 	}
 	

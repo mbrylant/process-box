@@ -21,9 +21,11 @@ import org.jboss.jbpm.processbox.model.PBProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigurableMockWorkItemHandler implements WorkItemHandler {
+public class NodeMockWorkItemHandler implements WorkItemHandler {
 
 	protected final BlockingQueue<ProcessBoxEvent> queue;
+	private Logger log = LoggerFactory
+			.getLogger(NodeMockWorkItemHandler.class);
 
 	private static enum Mode {
 		MULTI, SINGLE
@@ -31,22 +33,20 @@ public class ConfigurableMockWorkItemHandler implements WorkItemHandler {
 
 	private Mode mode = null;
 
-	private Logger log = LoggerFactory
-			.getLogger(ConfigurableMockWorkItemHandler.class);
+	
 
 	private final boolean synchronous;
 
 
 	private Map<String, Map<String, PBProperties>> processSpecificOutcomes = new HashMap<String, Map<String, PBProperties>>();
 
-	public ConfigurableMockWorkItemHandler(
-			BlockingQueue<ProcessBoxEvent> queue, final boolean synchronous) {
+	public NodeMockWorkItemHandler(BlockingQueue<ProcessBoxEvent> queue, final boolean synchronous) {
 		this.queue = queue;
 		this.synchronous = synchronous;
 		this.withDefault = false;
 	}
 
-	public ConfigurableMockWorkItemHandler(
+	public NodeMockWorkItemHandler(
 			BlockingQueue<ProcessBoxEvent> queue, final boolean synchronous,
 			final boolean withDefault) {
 		this.queue = queue;
@@ -58,40 +58,22 @@ public class ConfigurableMockWorkItemHandler implements WorkItemHandler {
 		workItemManager.abortWorkItem(workItem.getId());
 	}
 
-	
-//	@Deprecated
-//	public ConfigurableMockWorkItemHandler outcome(String nodeName,
-//			Map<String, Object> outcomes)
-//			throws ProcessBoxConfigurationException {
-//		if (mode == null) {
-//			mode = Mode.SINGLE;
-//		} 
-//		
-//		if (mode == Mode.SINGLE) {
-//			this.outcomes.put(nodeName, outcomes);
-//		} else {
-//			throw new ProcessBoxConfigurationException(
-//					"Should not mix SINGLE annd MULTI process configurations, aborting.");
-//		}
-//		return this;
-//	}
-
 	private PBProperties defaultOutcome = new PBProperties();
 
 	private boolean withDefault;
 
-	public ConfigurableMockWorkItemHandler withDefault(PBProperties def) {
+	public NodeMockWorkItemHandler withDefault(PBProperties def) {
 		this.defaultOutcome = def;
 		return this;
 	}
 
-	public ConfigurableMockWorkItemHandler withDefault() {
+	public NodeMockWorkItemHandler withDefault() {
 		withDefault = true;
 		return this;
 	}
 	
 	// TODO: Add support for Synchronous and asynchronous per node configuration
-	public ConfigurableMockWorkItemHandler outcome(String process, String node,
+	public NodeMockWorkItemHandler outcome(String process, String node,
 			PBProperties outcomes) throws ProcessBoxConfigurationException {
 
 		if (mode == null) {
@@ -140,6 +122,9 @@ public class ConfigurableMockWorkItemHandler implements WorkItemHandler {
 						String.format(
 								"No outcome configured for process {%s} and node {%s}",
 								processId, nodeName)));
+				throw new OutcomeConfigurationException(String.format(
+								"No outcome configured for process {%s} and node {%s}",
+								processId, nodeName));
 			}
 		}
 		
@@ -208,15 +193,12 @@ public class ConfigurableMockWorkItemHandler implements WorkItemHandler {
 		this.nodeName = nodeName;
 		this.processId = processId;
 
-//		logOutcomes();
-
-		queue.add(new ProcessBoxNodeInvocationEvent(processId, workItem
-				.getParameters()));
+		queue.add(new ProcessBoxNodeInvocationEvent(processId, workItem.getParameters()));
 
 		log.debug(String.format("Executing for node: {%d} {%s}",
 				node.getNodeId(), node.getNodeName()));
 
-		if (synchronous) {
+		if (synchronous == true) {
 			PBProperties outcome = getOutcome(processId, nodeName);
 			log.debug(String.format("Synchronous mode, returning outcome {%s}", outcome.describe()));
 			queue.add(new ProcessBoxNodeReturnEvent(processId, outcome));
@@ -224,15 +206,6 @@ public class ConfigurableMockWorkItemHandler implements WorkItemHandler {
 		} else {
 			log.debug("Asynchronous mode, no outcome returned until completeWorkItem() is invoked");
 		}
-
-		// String node = "";
-		//
-		//
-		// if (synchronous == true) {
-		// workItemManager.completeWorkItem(workItem.getId(),
-		// responses.get(node));
-		// }
-
 	}
 
 }

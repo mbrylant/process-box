@@ -26,7 +26,9 @@ import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.core.ProcessBoxConfigurationException;
 import org.jboss.jbpm.processbox.core.ProcessBoxTest;
 import org.jboss.jbpm.processbox.events.base.Events;
-import org.jboss.jbpm.processbox.handlers.ConfigurableMockWorkItemHandler;
+import org.jboss.jbpm.processbox.events.base.ProcessBoxNodeInvocationEvent;
+import org.jboss.jbpm.processbox.handlers.NodeMockWorkItemHandler;
+import org.jboss.jbpm.processbox.handlers.ResultStackMockWorkItemHandler;
 import org.jboss.jbpm.processbox.model.PBProperties;
 import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
 import org.jbpm.task.query.TaskSummary;
@@ -43,9 +45,9 @@ public class SimpleTest extends ProcessBoxTest {
 		ProcessInstance processInstance = 
 				container
 					.resource(process("reusableSubProcess.Parent", "org.plugtree.training.jbpm.reusablesubprocessparent", "com/sample/reusableSubProcess-Parent.bpmn"))
-					.resource(processMock("reusableSubProcess.Child", "org.plugtree.training.jbpm.reusablesubprocesschild"))
+					.resource(processMock("reusableSubProcess.Child", "org.plugtree.training.jbpm.reusablesubprocesschild", "defaultPackage", new PBProperties()))
 					.init()
-					.workItemHandler("Custom Service", new ConfigurableMockWorkItemHandler(queue, true).withDefault())
+					.workItemHandler("Custom Service", new NodeMockWorkItemHandler(queue, true).withDefault())
 					.startProcess("org.plugtree.training.jbpm.reusablesubprocessparent", null);
 		
 		waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);
@@ -57,9 +59,7 @@ public class SimpleTest extends ProcessBoxTest {
 	public void testSimpleProcess() throws InterruptedException, UnexpectedProcessBoxEventException, ContainerInitializationException, ExecutionException, TimeoutException, ProcessBoxConfigurationException {
 		
 		System.setProperty("processbox.debug.outcomes", "true");
-									
-		ConfigurableMockWorkItemHandler customServiceHandler = new ConfigurableMockWorkItemHandler(queue, true).withDefault();
-				
+		
 		PBProperties serviceTask2result = 
 				results()
 					.result("serviceName", "ABC")
@@ -67,14 +67,20 @@ public class SimpleTest extends ProcessBoxTest {
 					.result("contentMap", ImmutableMap.of("abort", true))
 					.result("returnTypeMap", false)
 					.result("serviceOperationName", "XYZ");
+									
+//		NodeMockWorkItemHandler customServiceHandler = new NodeMockWorkItemHandler(queue, true).withDefault();
+//		customServiceHandler.outcome("process.simple", "Service Task 2", serviceTask2result);		
 		
-		customServiceHandler.outcome("process.simple", "Service Task 2", serviceTask2result);				
+		ResultStackMockWorkItemHandler customServiceHandler = 
+				new ResultStackMockWorkItemHandler(queue)
+					.withDefault()
+					.outcome(serviceTask2result);
 		
 		Container container = new Container();
 		ProcessInstance processInstance = 
 				container
 					.resource(process("Simple Process", "process.simple", "org/jboss/jbpm/processbox/tests/simple.bpmn"))
-					.resource(processMock("Mock Sub Process", "sub.process"))		
+					.resource(processMock("Mock Sub Process", "sub.process", "defaultPackage", new PBProperties()))		
 					.init()
 					.workItemHandler("Human Task", new CommandBasedWSHumanTaskHandler(container.getSession()))
 					.workItemHandler("Custom Service", customServiceHandler)
@@ -86,13 +92,22 @@ public class SimpleTest extends ProcessBoxTest {
 		
 		waitUntilEvent(Events.TaskStarted);
 		TaskSummary john = getTask("john", "en-UK");
+		
+		System.err.println(john.getStatus().toString());
 		taskService.start(john.getId(), "john");
+		
+		TaskSummary john2 = getTask("john", "en-UK");
+		System.err.println(john2.getStatus().toString());
+		
 		taskService.complete(john.getId(), "john", null);		
 		waitUntilEvent(Events.TaskCompleted);
 		
+		//ProcessBoxNodeInvocationEvent pbevt = (ProcessBoxNodeInvocationEvent)
 		waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);
 		
+		
 		waitUntilEvent(Events.ProcessBoxNodeReturnEvent);
+//		waitUntilEvent(Events.VariableChanged);
 		
 		waitUntilEvent(Events.TaskStarted);		
 		
