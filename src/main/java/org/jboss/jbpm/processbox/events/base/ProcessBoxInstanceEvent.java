@@ -28,7 +28,7 @@ public abstract class ProcessBoxInstanceEvent implements ProcessBoxEvent {
 		return this.event;
 	}
 	
-	public String getDescription(){
+	public String describe(){
 		
 		if (this.event instanceof ProcessNodeTriggeredEventImpl  ) {
 			ProcessNodeTriggeredEventImpl processNodeTriggeredEvent = (ProcessNodeTriggeredEventImpl)event;

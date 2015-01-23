@@ -26,6 +26,7 @@ public interface ProcessBoxEvent {
 	
 	public String getSubType();
 	
-	public String getDescription();
+	public String describe();
+
 
 }

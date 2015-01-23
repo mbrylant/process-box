@@ -27,7 +27,7 @@ public class DefaultProcessBoxEvent implements ProcessBoxEvent {
 		return this.subType;
 	}
 
-	public String getDescription() {
+	public String describe() {
 		return this.description;
 	}
 

@@ -85,7 +85,7 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 import org.drools.io.Resource;
 
-public class ProcessBoxTest extends JbpmJUnitTestCase{
+public class ProcessBoxTest extends JbpmJUnitTestCase {
 	
 	protected Logger log = LoggerFactory.getLogger(ProcessBoxTest.class);
 	
@@ -96,13 +96,18 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 	
 	protected static BlockingQueue<ProcessBoxEvent> queue = new LinkedBlockingQueue<ProcessBoxEvent>(100);
 	
+	private static boolean TEST_INITIALIZED = false;
+	
 	@Before
-	public void setup(){		
-		dbServer = JBPMHelper.startH2Server();
-        datasource = JBPMHelper.setupDataSource();
-        ts = JBPMHelper.startTaskService();
-        ts.addEventListener(new ProcessBoxTaskListener(queue));
-        taskService = new LocalTaskService(ts);				
+	public void setup(){
+		if ( ProcessBoxTest.TEST_INITIALIZED == false ) {
+			dbServer = JBPMHelper.startH2Server();
+	        datasource = JBPMHelper.setupDataSource();
+	        ts = JBPMHelper.startTaskService();
+	        ts.addEventListener(new ProcessBoxTaskListener(queue));
+	        taskService = new LocalTaskService(ts);
+	        ProcessBoxTest.TEST_INITIALIZED = true;
+		}
 	}
 	
 	protected void waitFor() {
@@ -160,6 +165,8 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 	
 	public static class ResultStackSubProcessMockBuilder {
 		
+		private final String mockId;
+		
 		private RuleFlowProcess model;
 		
 		private final Deque<PBProperties> propertiesStack;
@@ -167,7 +174,11 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		public ResultStackSubProcessMockBuilder(RuleFlowProcess model, String mockId){
 			this.model=model;
 			this.propertiesStack = new ArrayDeque<PBProperties>();
-			
+			this.mockId = mockId;
+		}
+		
+		public String getMockId(){
+			return this.mockId;
 		}
 						
 		public ResultStackSubProcessMockBuilder result(PBProperties properties) {
@@ -175,7 +186,7 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 			return this;
 		}
 		
-		public WorkItemHandler getHandler() {
+		public ResultStackMockWorkItemHandler getHandler() {
 			return new ResultStackMockWorkItemHandler(queue, propertiesStack);
 		}
 		
@@ -190,7 +201,7 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		factory
 			.name(name).packageName(processPackage)
 			.startNode(1).name("Start").done()
-			.workItemNode(2).name(id).workName(mockId).done()
+			.workItemNode(2).name(mockId).workName(mockId).done()
 			.endNode(3).name("End").done()
 			.connection(1, 2)
 			.connection(2, 3);
@@ -253,6 +264,11 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 			this.INITIALIZED = false;
 		}
 		
+		public Container abort(ProcessInstance instance){
+			this.ksession.abortProcessInstance(instance.getId());
+			return this;
+		}
+		
 		private Collection<ResourceWrapper> resources;
 		
 		public Container resource(ResourceWrapper resource) {
@@ -276,8 +292,8 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		}
 		
 		public void close(){
-			logger.close();
-			ksession.dispose();
+//			logger.close();
+//			ksession.dispose();
 		}				
 		
 		private Container start(Collection<ResourceWrapper> resources){
@@ -375,7 +391,7 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 		while (!event.getSubType().equalsIgnoreCase(eventType.toString())) {
 			
 			if (event.getSubType().equalsIgnoreCase(Events.ProcessBoxError.toString())) {
-				throw new ProcessBoxConfigurationException(event.getDescription());
+				throw new ProcessBoxConfigurationException(event.describe());
 			}
 			
 			log.debug(String.format("[%s] Skipping event {%s}", uuid, describe(event)));
@@ -393,13 +409,13 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 			String variable = variableChangedEvent.getVariableId();
 			Object oldValue = variableChangedEvent.getOldValue();
 			Object newValue = variableChangedEvent.getNewValue();
-			return String.format("id {%s} type {%s} subType {%s} description {%s} variable {%s} old value {%s} new value {%s}", event.getId(), event.getType(), event.getSubType(), event.getDescription(), variable, oldValue, newValue);
+			return String.format("id {%s} type {%s} subType {%s} description {%s} variable {%s} old value {%s} new value {%s}", event.getId(), event.getType(), event.getSubType(), event.describe(), variable, oldValue, newValue);
 		}		
-		return String.format("id {%s} type {%s} subType {%s} description {%s}", event.getId(), event.getType(), event.getSubType(), event.getDescription());							
+		return String.format("id {%s} type {%s} subType {%s} description {%s}", event.getId(), event.getType(), event.getSubType(), event.describe());							
 	}
 	
 	
-	protected ProcessBoxNode<Initialized> nodeId(String id){
+	protected ProcessBoxNode<Initialized> nodeName(String id){
 		return DefaultProcessBoxNode.with(new NodeId(id));
 	}
 			
@@ -414,11 +430,14 @@ public class ProcessBoxTest extends JbpmJUnitTestCase{
 	}
 	
 	protected ProcessBoxEvent waitUntil(ProcessBoxNode<Initialized> node) throws InterruptedException {
+		String uuid = UUID.randomUUID().toString();
+		
+		log.debug(String.format("[%s] Listening for nodes {%s} => {%s}", uuid, node.matchedBy(), node.value()));
 		ProcessBoxEvent event = null;
 		event = queue.take();
 		
 		while (event== null || !node.matches(event)) {
-			log.debug("Skipping event: {" + event + "}");
+			log.debug(String.format("[%s] Skipping event {%s}", uuid, describe(event)));
 			event = queue.take();
 		}		
 		log.debug(String.format("Received event {%s} matching node activation {%s}", event, node));

@@ -24,7 +24,7 @@ public abstract class ProcessBoxTaskEvent implements ProcessBoxEvent {
 		return event.getClass().getSimpleName();
 	}
 	
-	public String getDescription(){
+	public String describe(){
 		String source = event.getSource().toString();
 		String name = event.getUserId();
 		long taskId = event.getTaskId();

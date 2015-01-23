@@ -21,10 +21,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import org.drools.process.core.Work;
 import org.drools.runtime.process.ProcessInstance;
 import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.core.ProcessBoxConfigurationException;
 import org.jboss.jbpm.processbox.core.ProcessBoxTest;
+import org.jboss.jbpm.processbox.core.ProcessBoxTest.ResultStackSubProcessMockBuilder;
 import org.jboss.jbpm.processbox.events.base.Events;
 import org.jboss.jbpm.processbox.events.base.ProcessBoxNodeInvocationEvent;
 import org.jboss.jbpm.processbox.handlers.NodeMockWorkItemHandler;
@@ -41,13 +43,16 @@ public class SimpleTest extends ProcessBoxTest {
 	@Test
 	public void testPerentChild() throws ContainerInitializationException, InterruptedException, ProcessBoxConfigurationException {
 		
+		ResultStackSubProcessMockBuilder subProcessBuilder = processMockStack("reusableSubProcess.Child", "org.plugtree.training.jbpm.reusablesubprocesschild", "defaultPackage");
 		Container container = new Container();
 		ProcessInstance processInstance = 
 				container
 					.resource(process("reusableSubProcess.Parent", "org.plugtree.training.jbpm.reusablesubprocessparent", "com/sample/reusableSubProcess-Parent.bpmn"))
-					.resource(processMock("reusableSubProcess.Child", "org.plugtree.training.jbpm.reusablesubprocesschild", "defaultPackage", new PBProperties()))
+//					.resource(processMock("reusableSubProcess.Child", "org.plugtree.training.jbpm.reusablesubprocesschild", "defaultPackage", new PBProperties()))
+					.resource(subProcessBuilder.getResource())
 					.init()
 					.workItemHandler("Custom Service", new NodeMockWorkItemHandler(queue, true).withDefault())
+					.workItemHandler(subProcessBuilder.getMockId(), subProcessBuilder.getHandler().withDefault())
 					.startProcess("org.plugtree.training.jbpm.reusablesubprocessparent", null);
 		
 		waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);
@@ -76,14 +81,18 @@ public class SimpleTest extends ProcessBoxTest {
 					.withDefault()
 					.outcome(serviceTask2result);
 		
+		ResultStackSubProcessMockBuilder subProcessBuilder = processMockStack("Mock Sub Process", "sub.process", "defaultPackage");
+		
 		Container container = new Container();
 		ProcessInstance processInstance = 
 				container
 					.resource(process("Simple Process", "process.simple", "org/jboss/jbpm/processbox/tests/simple.bpmn"))
-					.resource(processMock("Mock Sub Process", "sub.process", "defaultPackage", new PBProperties()))		
+//					.resource(processMock("Mock Sub Process", "sub.process", "defaultPackage", new PBProperties()))
+					.resource(subProcessBuilder.getResource())		
 					.init()
 					.workItemHandler("Human Task", new CommandBasedWSHumanTaskHandler(container.getSession()))
 					.workItemHandler("Custom Service", customServiceHandler)
+					.workItemHandler(subProcessBuilder.getMockId(), customServiceHandler)
 					.startProcess("process.simple", serviceTask2result.asMap());
 												
 		waitUntilEvent(Events.ProcessStarted);
@@ -99,30 +108,28 @@ public class SimpleTest extends ProcessBoxTest {
 		TaskSummary john2 = getTask("john", "en-UK");
 		System.err.println(john2.getStatus().toString());
 		
-		taskService.complete(john.getId(), "john", null);		
-		waitUntilEvent(Events.TaskCompleted);
+		taskService.complete(john.getId(), "john", null);
 		
-		//ProcessBoxNodeInvocationEvent pbevt = (ProcessBoxNodeInvocationEvent)
-		waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);
-		
-		
-		waitUntilEvent(Events.ProcessBoxNodeReturnEvent);
-//		waitUntilEvent(Events.VariableChanged);
-		
-		waitUntilEvent(Events.TaskStarted);		
+		waitUntilEvent(Events.TaskCompleted);	
+//		waitUntil(nodeName("Call Sub Process"));
+		waitUntil(nodeName(subProcessBuilder.getMockId()));
+		waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);				
+		waitUntilEvent(Events.ProcessBoxNodeReturnEvent);		
+		waitUntilEvent(Events.TaskStarted);
 		
 		
+				
 		TaskSummary mary = getTask("mary", "en-UK");
 		taskService.start(mary.getId(), "mary");		
 
-		container.getSession().abortProcessInstance(processInstance.getId());	
+		container.abort(processInstance);	
 		waitUntilEvent(Events.AfterProcessCompleted);		
 		
 		List<TaskSummary> tasksAfetrAboort = taskService.getTasksAssignedAsPotentialOwner("mary", "en-UK");
 		assertEquals(1, tasksAfetrAboort.size());
 		
 			
-		container.close();
+//		container.close();
 		
 	}
 
