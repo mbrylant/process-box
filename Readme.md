@@ -1,10 +1,4 @@
 # Process Box
-JBoss jBPM 5 Unit Test Framework (5.3.1)
+JBoss jBPM 5 Unit Test Framework (currently for 5.3.x)
 
-# Objectives
-* Enable Early Testing
-* Testing of Process Flow
-* Testing of Asynchronous Behaviors
-..*
-* Testing of Human Interactions
-* Efficient Dependency Stubbing
+Refer to the [Process Box Wiki](./wiki) for documentation
