@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import org.drools.SystemEventListenerFactory;
 import org.drools.process.core.Work;
 import org.drools.runtime.process.ProcessInstance;
 import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
@@ -34,6 +35,10 @@ import org.jboss.jbpm.processbox.handlers.ResultStackMockWorkItemHandler;
 import org.jboss.jbpm.processbox.model.PBProperties;
 import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
 import org.jbpm.task.query.TaskSummary;
+import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.mina.MinaTaskClientConnector;
+import org.jbpm.task.service.mina.MinaTaskClientHandler;
+import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -103,7 +108,22 @@ public class SimpleTest extends ProcessBoxTest {
 		TaskSummary john = getTask("john", "en-UK");
 		
 		System.err.println(john.getStatus().toString());
-		taskService.start(john.getId(), "john");
+		
+		BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
+		
+		TaskClient client = new TaskClient(new MinaTaskClientConnector("client 1", new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
+		client.connect("127.0.0.1", 9123);
+		
+		
+//		taskService.start(john.getId(), "john");
+		
+		client.start( john.getId(), "john", responseHandler );
+
+		responseHandler.waitTillDone(1000); 
+
+		
+		
+		
 		
 		TaskSummary john2 = getTask("john", "en-UK");
 		System.err.println(john2.getStatus().toString());

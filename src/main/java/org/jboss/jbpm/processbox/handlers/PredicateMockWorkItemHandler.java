@@ -9,14 +9,13 @@ public class PredicateMockWorkItemHandler implements WorkItemHandler {
 	@Override
 	public void executeWorkItem(WorkItem paramWorkItem,
 			WorkItemManager paramWorkItemManager) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void abortWorkItem(WorkItem paramWorkItem,
 			WorkItemManager paramWorkItemManager) {
-		// TODO Auto-generated method stub
+				
 
 	}
 
