@@ -12,7 +12,9 @@ import org.drools.process.instance.WorkItemHandler;
 import org.drools.runtime.process.NodeInstance;
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemManager;
+import org.drools.runtime.process.WorkflowProcessInstance;
 import org.jboss.jbpm.processbox.core.OutcomeConfigurationException;
+import org.jboss.jbpm.processbox.core.ProcessBoxTest.ProcessBoxEventQueue;
 import org.jboss.jbpm.processbox.events.base.DefaultProcessBoxEvent;
 import org.jboss.jbpm.processbox.events.base.Events;
 import org.jboss.jbpm.processbox.events.base.ProcessBoxEvent;
@@ -24,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class ResultStackMockWorkItemHandler implements WorkItemHandler {
 	
-	protected final BlockingQueue<ProcessBoxEvent> queue;
+	protected final ProcessBoxEventQueue queue;
 	private Logger log = LoggerFactory
 			.getLogger(ResultStackMockWorkItemHandler.class);
 	
@@ -44,12 +46,13 @@ public class ResultStackMockWorkItemHandler implements WorkItemHandler {
 	public void completeWorkItem() {
 		queue.add(new ProcessBoxNodeReturnEvent(processId, getNextOutcome(
 				processId, nodeName).asMap()));
+		this.count++;
 		this.workItemManager.completeWorkItem(this.workItem.getId(),
 				getNextOutcome(processId, nodeName).asMap());
 	}
 	
 	
-	public ResultStackMockWorkItemHandler(BlockingQueue<ProcessBoxEvent> queue) {
+	public ResultStackMockWorkItemHandler(ProcessBoxEventQueue queue) {
 		
 		this.queue = queue;
 		this.propertiesStack = new ArrayDeque<PBProperties>();
@@ -57,7 +60,7 @@ public class ResultStackMockWorkItemHandler implements WorkItemHandler {
 	}
 	
 	
-	public ResultStackMockWorkItemHandler(BlockingQueue<ProcessBoxEvent> queue, Deque<PBProperties> propertiesStack) {
+	public ResultStackMockWorkItemHandler(ProcessBoxEventQueue queue, Deque<PBProperties> propertiesStack) {
 		
 		this.queue = queue;
 		this.propertiesStack = propertiesStack;
@@ -121,10 +124,8 @@ public class ResultStackMockWorkItemHandler implements WorkItemHandler {
 		this.workItemManager = workItemManager;
 
 		Object evt = EventBuffer.get().getEvent();
-		
-		
-		if (!(evt instanceof ProcessNodeTriggeredEventImpl)) {
-			
+				
+		if (!(evt instanceof ProcessNodeTriggeredEventImpl)) {			
 			try {
 				throw new ProcessBoxNodeSignalingException(
 						"Last event received in the work item handler is not ProcessNodeTriggeredEventImpl");
@@ -148,10 +149,17 @@ public class ResultStackMockWorkItemHandler implements WorkItemHandler {
 				node.getNodeId(), node.getNodeName()));
 
 		if (this.synchrnonous == true) {
+			
 			PBProperties outcome = getNextOutcome(processId, nodeName);
 			log.debug(String.format("Synchronous mode, returning outcome {%s}", outcome.describe()));
 			queue.add(new ProcessBoxNodeReturnEvent(processId, outcome));
-			workItemManager.completeWorkItem(workItem.getId(),outcome.asMap());
+			
+			WorkflowProcessInstance instance = node.getProcessInstance();
+			for (String variable: outcome.asMap().keySet()){
+				instance.setVariable(variable, outcome.get(variable));
+			}
+			this.count++;
+			workItemManager.completeWorkItem(workItem.getId(),null);
 		} else {
 			log.debug("Asynchronous mode, no outcome returned until completeWorkItem() is invoked");
 		}

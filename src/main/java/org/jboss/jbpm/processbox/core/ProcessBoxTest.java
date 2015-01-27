@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -94,7 +95,28 @@ public class ProcessBoxTest extends JbpmJUnitTestCase {
 	protected PoolingDataSource datasource;
 	protected Server dbServer;
 	
-	protected static BlockingQueue<ProcessBoxEvent> queue = new LinkedBlockingQueue<ProcessBoxEvent>(100);
+	protected static ProcessBoxEventQueue queue = new ProcessBoxEventQueue();
+	
+	public static class ProcessBoxEventQueue extends LinkedBlockingQueue<ProcessBoxEvent> {
+		
+		private static final long serialVersionUID = 8120898600803448704L;
+		private final Set<ProcessBoxEvent> audit = new HashSet<ProcessBoxEvent>();
+		public static int DEFAULT_QUEUE_CAPACITY = 10000;
+		
+		public ProcessBoxEventQueue () {			
+			super(DEFAULT_QUEUE_CAPACITY);
+		}
+			
+		public boolean add(ProcessBoxEvent e) {
+			boolean result = super.add(e);
+			this.audit.add(e);
+			return result;
+		}
+		
+		public Set<ProcessBoxEvent> audit() {
+			return this.audit;
+		}
+	}
 	
 	private static boolean TEST_INITIALIZED = false;
 	
@@ -420,8 +442,8 @@ public class ProcessBoxTest extends JbpmJUnitTestCase {
 	}
 			
 	@Async
-	public Future<ProcessBoxEvent> getSpecificNode(ProcessBoxNode<Initialized> node) throws InterruptedException {	    
-	        return new AsyncResult<ProcessBoxEvent>( waitUntil(node));
+	protected Future<ProcessBoxEvent> getSpecificNode(ProcessBoxNode<Initialized> node) throws InterruptedException {	    
+	        return new AsyncResult<ProcessBoxEvent>( waitUntilNode(node));
 	}
 	
 	protected ProcessBoxEvent waitUntilOrTimeout(ProcessBoxNode<Initialized> node, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
@@ -429,7 +451,33 @@ public class ProcessBoxTest extends JbpmJUnitTestCase {
 		return eventFuture.get(timeout, unit);
 	}
 	
-	protected ProcessBoxEvent waitUntil(ProcessBoxNode<Initialized> node) throws InterruptedException {
+	protected ProcessBoxEvent waitForVariable(String name) throws InterruptedException, ProcessBoxConfigurationException {		
+
+		
+		ProcessBoxInstanceEvent evt = null;
+		ProcessVariableChangedEventImpl variableChangedEvent = null;
+		String variableDetected = "";
+		
+		while (!variableDetected.equalsIgnoreCase(name)) {
+			if (!variableDetected.equalsIgnoreCase("")) {
+				log.debug(String.format("Skipping variable {%s}", variableDetected));
+			}
+			evt = (ProcessBoxInstanceEvent)waitUntilEvent(Events.BeforeVariableChanged);
+			variableChangedEvent = (ProcessVariableChangedEventImpl)evt.getEvent();
+			variableDetected= variableChangedEvent.getVariableId();
+			log.debug(String.format("Detected variable {%s}", variableDetected));
+		}
+		
+		String newValue = variableChangedEvent.getNewValue() == null ? "" : variableChangedEvent.getNewValue().toString();
+		String type = variableChangedEvent.getNewValue() == null ? null :  variableChangedEvent.getNewValue().getClass().getSimpleName();
+		String oldValue = variableChangedEvent.getOldValue() == null ? "" : variableChangedEvent.getOldValue().toString();
+		log.debug(String.format("Matched variable {%s} on event {%s}: type {%s} new value {%s} <= old value {%s}",variableDetected, evt.describe(), type, newValue, oldValue));
+			
+		
+		return evt;
+	} 
+	
+	protected ProcessBoxEvent waitUntilNode(ProcessBoxNode<Initialized> node) throws InterruptedException {
 		String uuid = UUID.randomUUID().toString();
 		
 		log.debug(String.format("[%s] Listening for nodes {%s} => {%s}", uuid, node.matchedBy(), node.value()));

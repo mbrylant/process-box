@@ -120,6 +120,8 @@ public class SimpleTest extends ProcessBoxTest {
 		client.start( john.getId(), "john", responseHandler );
 
 		responseHandler.waitTillDone(1000); 
+		
+		
 
 		
 		
@@ -130,17 +132,24 @@ public class SimpleTest extends ProcessBoxTest {
 		
 		taskService.complete(john.getId(), "john", null);
 		
-		waitUntilEvent(Events.TaskCompleted);	
+		waitUntilEvent(Events.TaskCompleted);
+		
+		
+		
 //		waitUntil(nodeName("Call Sub Process"));
-		waitUntil(nodeName(subProcessBuilder.getMockId()));
-		waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);				
-		waitUntilEvent(Events.ProcessBoxNodeReturnEvent);		
+		waitUntilNode(nodeName(subProcessBuilder.getMockId()));
+		
+		waitForVariable("contentMap");
+		
+		//waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);				
+		//waitUntilEvent(Events.ProcessBoxNodeReturnEvent);		
 		waitUntilEvent(Events.TaskStarted);
 		
 		
 				
 		TaskSummary mary = getTask("mary", "en-UK");
-		taskService.start(mary.getId(), "mary");		
+		taskService.start(mary.getId(), "mary");	
+		
 
 		container.abort(processInstance);	
 		waitUntilEvent(Events.AfterProcessCompleted);		
