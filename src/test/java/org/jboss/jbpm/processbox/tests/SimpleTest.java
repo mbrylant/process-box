@@ -43,6 +43,9 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 public class SimpleTest extends ProcessBoxTest {
 	
 	@Test
@@ -136,10 +139,14 @@ public class SimpleTest extends ProcessBoxTest {
 		
 		
 		
+		
+		
 //		waitUntil(nodeName("Call Sub Process"));
 		waitUntilNode(nodeName(subProcessBuilder.getMockId()));
 		
 		waitForVariable("contentMap");
+		
+//		assertThat
 		
 		//waitUntilEvent(Events.ProcessBoxNodeInvocationEvent);				
 		//waitUntilEvent(Events.ProcessBoxNodeReturnEvent);		

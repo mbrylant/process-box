@@ -28,5 +28,4 @@ public interface ProcessBoxEvent {
 	
 	public String describe();
 
-
 }
