@@ -94,7 +94,7 @@ public class SimpleTest extends ProcessBoxTest {
 		Container container = new Container();
 		ProcessInstance processInstance = 
 				container
-					.resource(process("Simple Process", "process.simple", "org/jboss/jbpm/processbox/tests/simple.bpmn"))
+					.resource(process("Simple Process", "process.simple", "org/jboss/jbpm/processbox/tests/simple-event.bpmn2"))
 //					.resource(processMock("Mock Sub Process", "sub.process", "defaultPackage", new PBProperties()))
 					.resource(subProcessBuilder.getResource())		
 					.init()

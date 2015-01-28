@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:g="http://www.jboss.org/drools/flow/gpd" xmlns:tns="http://www.jboss.org/drools" xmlns="http://www.jboss.org/drools" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd" id="Definition" expressionLanguage="http://www.mvel.org/2.0" targetNamespace="http://www.jboss.org/drools" typeLanguage="http://www.java.com/javaTypes">
+  <bpmn2:itemDefinition id="_Boolean" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="ItemDefinition_2" structureRef="java.util.Map"/>
+  <bpmn2:process id="process.simple" tns:version="1" tns:packageName="defaultPackage" tns:adHoc="false" name="Simple Process" isExecutable="true" processType="Private">
+    <bpmn2:extensionElements>
+      <tns:import name="java.util.Map"/>
+    </bpmn2:extensionElements>
+    <bpmn2:property id="retryFailed" itemSubjectRef="_Boolean"/>
+    <bpmn2:property id="contentMap" itemSubjectRef="ItemDefinition_2"/>
+    <bpmn2:userTask id="_5" name="Second Task">
+      <bpmn2:incoming>_jbpm-unique-5-_5</bpmn2:incoming>
+      <bpmn2:outgoing>_5-_3</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="InputOutputSpecification_1">
+        <bpmn2:dataInput id="_5_TaskNameInput" name="TaskName"/>
+        <bpmn2:dataInput id="_5_NodeNameInput" name="NodeName"/>
+        <bpmn2:dataInput id="_5_SkippableInput" name="Skippable"/>
+        <bpmn2:inputSet id="InputSet_1">
+          <bpmn2:dataInputRefs>_5_TaskNameInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_5_NodeNameInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_5_SkippableInput</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet id="OutputSet_1"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_1">
+        <bpmn2:targetRef>_5_TaskNameInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_1">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_1">Task2</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_2">_5_TaskNameInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_2">
+        <bpmn2:targetRef>_5_NodeNameInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_2">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_3">Second Task</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_4">_5_NodeNameInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_3">
+        <bpmn2:targetRef>_5_SkippableInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_3">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_5">false</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_6">_5_SkippableInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:potentialOwner id="PotentialOwner_1">
+        <bpmn2:resourceAssignmentExpression id="ResourceAssignmentExpression_1">
+          <bpmn2:formalExpression id="FormalExpression_7">mary</bpmn2:formalExpression>
+        </bpmn2:resourceAssignmentExpression>
+      </bpmn2:potentialOwner>
+    </bpmn2:userTask>
+    <bpmn2:endEvent id="_3" name="End">
+      <bpmn2:incoming>_5-_3</bpmn2:incoming>
+      <bpmn2:terminateEventDefinition id="TerminateEventDefinition_1"/>
+    </bpmn2:endEvent>
+    <bpmn2:userTask id="_4" name="First Task">
+      <bpmn2:incoming>_1-_4</bpmn2:incoming>
+      <bpmn2:outgoing>_4-CallActivity_1</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="InputOutputSpecification_2">
+        <bpmn2:dataInput id="_4_TaskNameInput" name="TaskName"/>
+        <bpmn2:dataInput id="_4_NodeNameInput" name="NodeName"/>
+        <bpmn2:dataInput id="_4_SkippableInput" name="Skippable"/>
+        <bpmn2:inputSet id="InputSet_2">
+          <bpmn2:dataInputRefs>_4_TaskNameInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_4_NodeNameInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_4_SkippableInput</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet id="OutputSet_2"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_4">
+        <bpmn2:targetRef>_4_TaskNameInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_4">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_8">Task1</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_9">_4_TaskNameInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_5">
+        <bpmn2:targetRef>_4_NodeNameInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_5">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_10">First Task</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_11">_4_NodeNameInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_6">
+        <bpmn2:targetRef>_4_SkippableInput</bpmn2:targetRef>
+        <bpmn2:assignment id="Assignment_6">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="FormalExpression_12">false</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="FormalExpression_13">_4_SkippableInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:potentialOwner id="PotentialOwner_2">
+        <bpmn2:resourceAssignmentExpression id="ResourceAssignmentExpression_2">
+          <bpmn2:formalExpression id="FormalExpression_14">john</bpmn2:formalExpression>
+        </bpmn2:resourceAssignmentExpression>
+      </bpmn2:potentialOwner>
+    </bpmn2:userTask>
+    <bpmn2:startEvent id="_1" name="Start">
+      <bpmn2:outgoing>_1-_4</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:task id="ServiceTask_3" tns:taskName="Custom Service" name="Service Task 2">
+      <bpmn2:extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script></tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script>/*Process webservice result*/
+java.util.Map mapContent = (java.util.Map)kcontext.getVariable(&quot;contentMap&quot;);
+kcontext.setVariable(&quot;retryFailed&quot;,mapContent.get(&quot;retryFailed&quot;));
+//kcontext.setVariable(&quot;sysAdminQId&quot;,mapContent.get(&quot;sysAdminQId&quot;));
+//kcontext.setVariable(&quot;aborted&quot;,false);</tns:script>
+        </tns:onExit-script>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>CallActivity_1-ServiceTask_3</bpmn2:incoming>
+      <bpmn2:outgoing>ServiceTask_3-_jbpm-unique-5</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="InputOutputSpecification_3">
+        <bpmn2:inputSet id="InputSet_3"/>
+        <bpmn2:outputSet id="OutputSet_3"/>
+      </bpmn2:ioSpecification>
+    </bpmn2:task>
+    <bpmn2:callActivity id="CallActivity_1" tns:waitForCompletion="true" tns:independent="false" name="Call Sub Process" calledElement="sub.process">
+      <bpmn2:incoming>_4-CallActivity_1</bpmn2:incoming>
+      <bpmn2:outgoing>CallActivity_1-ServiceTask_3</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="InputOutputSpecification_4">
+        <bpmn2:inputSet id="InputSet_4"/>
+        <bpmn2:outputSet id="OutputSet_4"/>
+      </bpmn2:ioSpecification>
+    </bpmn2:callActivity>
+    <bpmn2:intermediateCatchEvent id="_jbpm-unique-4" name="Signal">
+      <bpmn2:outgoing>_jbpm-unique-4-_jbpm-unique-5</bpmn2:outgoing>
+    </bpmn2:intermediateCatchEvent>
+    <bpmn2:sequenceFlow id="_5-_3" tns:priority="1" name="" sourceRef="_5" targetRef="_3"/>
+    <bpmn2:sequenceFlow id="_1-_4" tns:priority="1" name="" sourceRef="_1" targetRef="_4"/>
+    <bpmn2:sequenceFlow id="CallActivity_1-ServiceTask_3" tns:priority="1" name="" sourceRef="CallActivity_1" targetRef="ServiceTask_3"/>
+    <bpmn2:sequenceFlow id="_4-CallActivity_1" tns:priority="1" name="" sourceRef="_4" targetRef="CallActivity_1"/>
+    <bpmn2:sequenceFlow id="ServiceTask_3-_jbpm-unique-5" tns:priority="1" name="" sourceRef="ServiceTask_3" targetRef="_jbpm-unique-5"/>
+    <bpmn2:sequenceFlow id="_jbpm-unique-4-_jbpm-unique-5" tns:priority="1" name="" sourceRef="_jbpm-unique-4" targetRef="_jbpm-unique-5"/>
+    <bpmn2:complexGateway id="_jbpm-unique-5" name="Gateway" gatewayDirection="Converging">
+      <bpmn2:incoming>ServiceTask_3-_jbpm-unique-5</bpmn2:incoming>
+      <bpmn2:incoming>_jbpm-unique-4-_jbpm-unique-5</bpmn2:incoming>
+      <bpmn2:outgoing>_jbpm-unique-5-_5</bpmn2:outgoing>
+    </bpmn2:complexGateway>
+    <bpmn2:sequenceFlow id="_jbpm-unique-5-_5" tns:priority="1" name="" sourceRef="_jbpm-unique-5" targetRef="_5"/>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_1" bpmnElement="process.simple">
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_1" bpmnElement="_5">
+        <dc:Bounds height="48.0" width="100.0" x="840.0" y="214.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_1" bpmnElement="_3">
+        <dc:Bounds height="48.0" width="48.0" x="1084.0" y="215.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_2" bpmnElement="_4">
+        <dc:Bounds height="48.0" width="100.0" x="160.0" y="213.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_StartEvent_1" bpmnElement="_1">
+        <dc:Bounds height="48.0" width="48.0" x="14.0" y="171.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_Task_1" bpmnElement="ServiceTask_3">
+        <dc:Bounds height="50.0" width="110.0" x="489.0" y="215.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_CallActivity_1" bpmnElement="CallActivity_1">
+        <dc:Bounds height="50.0" width="110.0" x="345.0" y="313.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_IntermediateCatchEvent_1" bpmnElement="_jbpm-unique-4">
+        <dc:Bounds height="48.0" width="48.0" x="696.0" y="340.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ComplexGateway_1" bpmnElement="_jbpm-unique-5">
+        <dc:Bounds height="48.0" width="48.0" x="696.0" y="216.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="_jbpm-unique-5-_5" sourceElement="BPMNShape_ComplexGateway_1" targetElement="BPMNShape_UserTask_1">
+        <di:waypoint xsi:type="dc:Point" x="745.0" y="240.0"/>
+        <di:waypoint xsi:type="dc:Point" x="787.0" y="240.0"/>
+        <di:waypoint xsi:type="dc:Point" x="787.0" y="238.0"/>
+        <di:waypoint xsi:type="dc:Point" x="840.0" y="238.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_2" bpmnElement="_5-_3" sourceElement="BPMNShape_UserTask_1" targetElement="BPMNShape_EndEvent_1">
+        <di:waypoint xsi:type="dc:Point" x="890.0" y="238.0"/>
+        <di:waypoint xsi:type="dc:Point" x="1070.0" y="238.0"/>
+        <di:waypoint xsi:type="dc:Point" x="1070.0" y="239.0"/>
+        <di:waypoint xsi:type="dc:Point" x="1108.0" y="239.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="_1-_4" sourceElement="BPMNShape_StartEvent_1" targetElement="BPMNShape_UserTask_2">
+        <di:waypoint xsi:type="dc:Point" x="38.0" y="195.0"/>
+        <di:waypoint xsi:type="dc:Point" x="38.0" y="237.0"/>
+        <di:waypoint xsi:type="dc:Point" x="210.0" y="237.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_4" bpmnElement="CallActivity_1-ServiceTask_3" sourceElement="BPMNShape_CallActivity_1" targetElement="BPMNShape_Task_1">
+        <di:waypoint xsi:type="dc:Point" x="400.0" y="338.0"/>
+        <di:waypoint xsi:type="dc:Point" x="544.0" y="337.0"/>
+        <di:waypoint xsi:type="dc:Point" x="544.0" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_5" bpmnElement="_4-CallActivity_1" sourceElement="BPMNShape_UserTask_2" targetElement="BPMNShape_CallActivity_1">
+        <di:waypoint xsi:type="dc:Point" x="210.0" y="237.0"/>
+        <di:waypoint xsi:type="dc:Point" x="210.0" y="338.0"/>
+        <di:waypoint xsi:type="dc:Point" x="400.0" y="338.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_6" bpmnElement="ServiceTask_3-_jbpm-unique-5" sourceElement="BPMNShape_Task_1" targetElement="BPMNShape_ComplexGateway_1">
+        <di:waypoint xsi:type="dc:Point" x="599.0" y="240.0"/>
+        <di:waypoint xsi:type="dc:Point" x="642.0" y="240.0"/>
+        <di:waypoint xsi:type="dc:Point" x="642.0" y="240.0"/>
+        <di:waypoint xsi:type="dc:Point" x="696.0" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_7" bpmnElement="_jbpm-unique-4-_jbpm-unique-5" sourceElement="BPMNShape_IntermediateCatchEvent_1" targetElement="BPMNShape_ComplexGateway_1">
+        <di:waypoint xsi:type="dc:Point" x="720.0" y="340.0"/>
+        <di:waypoint xsi:type="dc:Point" x="720.0" y="284.0"/>
+        <di:waypoint xsi:type="dc:Point" x="720.0" y="284.0"/>
+        <di:waypoint xsi:type="dc:Point" x="720.0" y="265.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>
