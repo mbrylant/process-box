@@ -1,0 +1,1068 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             targetNamespace="http://www.jboss.org/drools"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+
+  <itemDefinition id="_brnItem" structureRef="String" />
+  <itemDefinition id="_processIdItem" structureRef="String" />
+  <itemDefinition id="_externalInstanceIdItem" structureRef="String" />
+  <itemDefinition id="_existingExternalInstanceIdItem" structureRef="String" />
+  <itemDefinition id="_applicationIdItem" structureRef="String" />
+  <itemDefinition id="_areaOfficeIdItem" structureRef="String" />
+  <itemDefinition id="_processDeadlineDateItem" structureRef="String" />
+  <itemDefinition id="_isFixedDateItem" structureRef="Boolean" />
+  <itemDefinition id="_isInFlightItem" structureRef="Boolean" />
+  <itemDefinition id="_contentMapItem" structureRef="java.util.HashMap" />
+  <itemDefinition id="_externalContentMapItem" structureRef="java.util.HashMap" />
+  <itemDefinition id="_serviceNameInputItem" structureRef="String" />
+  <itemDefinition id="_serviceParamsInputItem" structureRef="java.util.HashMap" />
+  <itemDefinition id="_serviceOperationNameInputItem" structureRef="String" />
+  <itemDefinition id="_serviceReturnOutputItem" structureRef="java.util.HashMap" />
+  <itemDefinition id="_returnTypeMapInputItem" structureRef="Boolean" />
+  <itemDefinition id="_subProcessAbortedItem" structureRef="Boolean" />
+  <itemDefinition id="_currentProcessingStatusItem" structureRef="String" />
+  <itemDefinition id="_currentSuspensionStatusItem" structureRef="String" />
+  <itemDefinition id="_hasInspectionSelectionErrorsItem" structureRef="Boolean" />
+  <itemDefinition id="_hasProcessSAFErrorsItem" structureRef="Boolean" />
+
+  <process processType="Private" isExecutable="true" id="application-process-saf" name="SAF Application Process" tns:packageName="uk.gov.scotland.afrc.workmanagement.applications" >
+
+    <!-- process variables -->
+    <property id="brn" itemSubjectRef="_brnItem"/>
+    <property id="processId" itemSubjectRef="_processIdItem"/>
+    <property id="externalInstanceId" itemSubjectRef="_externalInstanceIdItem"/>
+    <property id="existingExternalInstanceId" itemSubjectRef="_existingExternalInstanceIdItem"/>
+    <property id="applicationId" itemSubjectRef="_applicationIdItem"/>
+    <property id="areaOfficeId" itemSubjectRef="_areaOfficeIdItem"/>
+    <property id="processDeadlineDate" itemSubjectRef="_processDeadlineDateItem"/>
+    <property id="isFixedDate" itemSubjectRef="_isFixedDateItem"/>
+    <property id="isInFlight" itemSubjectRef="_isInFlightItem"/>
+    <property id="contentMap" itemSubjectRef="_contentMapItem"/>
+    <property id="externalContentMap" itemSubjectRef="_externalContentMapItem"/>
+    <property id="serviceNameInput" itemSubjectRef="_serviceNameInputItem"/>
+    <property id="serviceParamsInput" itemSubjectRef="_serviceParamsInputItem"/>
+    <property id="serviceOperationNameInput" itemSubjectRef="_serviceOperationNameInputItem"/>
+    <property id="serviceReturnOutput" itemSubjectRef="_serviceReturnOutputItem"/>
+    <property id="returnTypeMapInput" itemSubjectRef="_returnTypeMapInputItem"/>
+    <property id="subProcessAborted" itemSubjectRef="_subProcessAbortedItem"/>
+    <property id="currentProcessingStatus" itemSubjectRef="_currentProcessingStatusItem"/>
+    <property id="currentSuspensionStatus" itemSubjectRef="_currentSuspensionStatusItem"/>
+    <property id="hasInspectionSelectionErrors" itemSubjectRef="_hasInspectionSelectionErrorsItem"/>
+    <property id="hasProcessSAFErrors" itemSubjectRef="_hasProcessSAFErrorsItem"/>
+
+    <!-- nodes -->
+    <startEvent id="_1" name="StartProcess" />
+    <callActivity id="_2" name="[WS] Determine if Instance In Flight" calledElement="CustomService" >
+      <extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("############## - Configuring ProcessTypeWebService - isInFlight -  ########################");
+kcontext.setVariable("serviceNameInput","ProcessTypeWebService");
+kcontext.setVariable("serviceOperationNameInput","isInFlight");
+serviceParamsInput = new java.util.HashMap&lt;String, Object&gt;();
+serviceParamsInput.put("brn", kcontext.getVariable("brn"));
+serviceParamsInput.put("applicationId", kcontext.getVariable("applicationId"));
+serviceParamsInput.put("processId", kcontext.getVariable("processId"));
+kcontext.setVariable("serviceParamsInput",serviceParamsInput);
+boolean isMap = false;
+kcontext.setVariable("returnTypeMapInput",isMap);
+System.out.println("##########  INVOKE SERVICE ProcessTypeWebService - isInFlight");</tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("on exit from #############     SUB PROCESS ##################");
+kcontext.setVariable("isInFlight",Boolean.valueOf(false) );	
+java.util.Map&lt;String, Object&gt; param = (java.util.Map&lt;String, Object&gt;)kcontext.getVariable("serviceReturnOutput");
+System.out.println("###### param = "+param);
+if( param != null ){
+	existingExternalInstanceId = (String) param.get("existingExternalInstanceId");
+	if( existingExternalInstanceId != null &amp;&amp; !"".equals(existingExternalInstanceId) 
+		&amp;&amp; Long.valueOf(existingExternalInstanceId) &gt; 0 ){
+		kcontext.setVariable("isInFlight",Boolean.valueOf(true) );	
+		kcontext.setVariable("existingExternalInstanceId",existingExternalInstanceId );	
+	}
+}
+System.out.println("###### subProcessAborted = "+kcontext.getVariable("subProcessAborted"));
+System.out.println("###### existingExternalInstanceId = "+kcontext.getVariable("existingExternalInstanceId"));
+System.out.println("###### isInFlight = "+kcontext.getVariable("isInFlight"));</tns:script>
+        </tns:onExit-script>
+      </extensionElements>
+      <ioSpecification>
+        <dataInput id="_2_serviceParamsInput" name="serviceParams" />
+        <dataInput id="_2_serviceOperationNameInput" name="serviceOperationName" />
+        <dataInput id="_2_returnTypeMapInput" name="returnTypeMap" />
+        <dataInput id="_2_contentMapInput" name="contentMap" />
+        <dataInput id="_2_serviceNameInput" name="serviceName" />
+        <dataOutput id="_2_serviceReturnOutput" name="serviceReturn" />
+        <dataOutput id="_2_retryFailedOutput" name="retryFailed" />
+        <inputSet>
+          <dataInputRefs>_2_serviceParamsInput</dataInputRefs>
+          <dataInputRefs>_2_serviceOperationNameInput</dataInputRefs>
+          <dataInputRefs>_2_returnTypeMapInput</dataInputRefs>
+          <dataInputRefs>_2_contentMapInput</dataInputRefs>
+          <dataInputRefs>_2_serviceNameInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>_2_serviceReturnOutput</dataOutputRefs>
+          <dataOutputRefs>_2_retryFailedOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>serviceParamsInput</sourceRef>
+        <targetRef>_2_serviceParamsInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceOperationNameInput</sourceRef>
+        <targetRef>_2_serviceOperationNameInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>returnTypeMapInput</sourceRef>
+        <targetRef>_2_returnTypeMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>externalContentMap</sourceRef>
+        <targetRef>_2_contentMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceNameInput</sourceRef>
+        <targetRef>_2_serviceNameInput</targetRef>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_2_serviceReturnOutput</sourceRef>
+        <targetRef>serviceReturnOutput</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_2_retryFailedOutput</sourceRef>
+        <targetRef>subProcessAborted</targetRef>
+      </dataOutputAssociation>
+    </callActivity>
+    <inclusiveGateway id="_3" name="Gateway" gatewayDirection="Diverging" />
+    <scriptTask id="_4" name="In Flight Service failure Log" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("In Flight webservice call is failed");</script>
+    </scriptTask>
+    <endEvent id="_5" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <inclusiveGateway id="_6" name="Gateway" gatewayDirection="Diverging" />
+    <callActivity id="_7" name="[WS] Signal Existing Instance for Revalidation" calledElement="CustomService" >
+      <extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("############## - Configuring ExternalProcessManagementWebService - externalEvent");
+kcontext.setVariable("serviceNameInput","ExternalProcessManagementWebService");
+kcontext.setVariable("serviceOperationNameInput","externalEvent");
+
+serviceParamsInput = new java.util.HashMap&lt;String, Object&gt;();
+serviceParamsInput.put("origin", "External Origin");
+serviceParamsInput.put("eventType", "ApplicationRevalidated");
+serviceParamsInput.put("brn", kcontext.getVariable("brn"));
+serviceParamsInput.put("processId", kcontext.getVariable("processId"));
+serviceParamsInput.put("existingExternalInstanceId", kcontext.getVariable("existingExternalInstanceId"));
+
+kcontext.setVariable("serviceParamsInput",serviceParamsInput);
+
+boolean isMap = false;
+kcontext.setVariable("returnTypeMapInput",isMap);
+
+System.out.println("##########  INVOKE SERVICE ExternalProcessManagementWebService - externalEvent");</tns:script>
+        </tns:onEntry-script>
+      </extensionElements>
+      <ioSpecification>
+        <dataInput id="_7_serviceParamsInput" name="serviceParams" />
+        <dataInput id="_7_serviceOperationNameInput" name="serviceOperationName" />
+        <dataInput id="_7_returnTypeMapInput" name="returnTypeMap" />
+        <dataInput id="_7_contentMapInput" name="contentMap" />
+        <dataInput id="_7_serviceNameInput" name="serviceName" />
+        <dataOutput id="_7_serviceReturnOutput" name="serviceReturn" />
+        <dataOutput id="_7_retryFailedOutput" name="retryFailed" />
+        <inputSet>
+          <dataInputRefs>_7_serviceParamsInput</dataInputRefs>
+          <dataInputRefs>_7_serviceOperationNameInput</dataInputRefs>
+          <dataInputRefs>_7_returnTypeMapInput</dataInputRefs>
+          <dataInputRefs>_7_contentMapInput</dataInputRefs>
+          <dataInputRefs>_7_serviceNameInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>_7_serviceReturnOutput</dataOutputRefs>
+          <dataOutputRefs>_7_retryFailedOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>serviceParamsInput</sourceRef>
+        <targetRef>_7_serviceParamsInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceOperationNameInput</sourceRef>
+        <targetRef>_7_serviceOperationNameInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>returnTypeMapInput</sourceRef>
+        <targetRef>_7_returnTypeMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>externalContentMap</sourceRef>
+        <targetRef>_7_contentMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceNameInput</sourceRef>
+        <targetRef>_7_serviceNameInput</targetRef>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_7_serviceReturnOutput</sourceRef>
+        <targetRef>serviceReturnOutput</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_7_retryFailedOutput</sourceRef>
+        <targetRef>subProcessAborted</targetRef>
+      </dataOutputAssociation>
+    </callActivity>
+    <endEvent id="_8" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <inclusiveGateway id="_9" name="Gateway" gatewayDirection="Diverging" />
+    <scriptTask id="_10" name="Revalidation failure Log" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("Revalidation webservice call failed");</script>
+    </scriptTask>
+    <endEvent id="_11" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <endEvent id="_12" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <callActivity id="_13" name="[WS] Set Process Information" calledElement="CustomService" >
+      <extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("############## - Configuring WorkManagementProcessTypeService - addAdditionalProcessInfo -  ########################");
+kcontext.setVariable("serviceNameInput","WorkManagementProcessTypeService");
+kcontext.setVariable("serviceOperationNameInput","addAdditionalProcessInfo");
+
+serviceParamsInput = new java.util.HashMap&lt;String, Object&gt;();
+serviceParamsInput.put("brn", kcontext.getVariable("brn"));
+serviceParamsInput.put("applicationId", kcontext.getVariable("applicationId"));
+serviceParamsInput.put("processId", kcontext.getVariable("processId"));
+serviceParamsInput.put("externalInstanceId", kcontext.getVariable("externalInstanceId"));
+kcontext.setVariable("serviceParamsInput",serviceParamsInput);
+
+boolean isMap = false;
+kcontext.setVariable("returnTypeMapInput",isMap);
+
+System.out.println("##########  INVOKE SERVICE WorkManagementProcessTypeService - addAdditionalProcessInfo");</tns:script>
+        </tns:onEntry-script>
+      </extensionElements>
+      <ioSpecification>
+        <dataInput id="_13_serviceParamsInput" name="serviceParams" />
+        <dataInput id="_13_serviceOperationNameInput" name="serviceOperationName" />
+        <dataInput id="_13_returnTypeMapInput" name="returnTypeMap" />
+        <dataInput id="_13_contentMapInput" name="contentMap" />
+        <dataInput id="_13_serviceNameInput" name="serviceName" />
+        <dataOutput id="_13_serviceReturnOutput" name="serviceReturn" />
+        <dataOutput id="_13_retryFailedOutput" name="retryFailed" />
+        <inputSet>
+          <dataInputRefs>_13_serviceParamsInput</dataInputRefs>
+          <dataInputRefs>_13_serviceOperationNameInput</dataInputRefs>
+          <dataInputRefs>_13_returnTypeMapInput</dataInputRefs>
+          <dataInputRefs>_13_contentMapInput</dataInputRefs>
+          <dataInputRefs>_13_serviceNameInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>_13_serviceReturnOutput</dataOutputRefs>
+          <dataOutputRefs>_13_retryFailedOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>serviceParamsInput</sourceRef>
+        <targetRef>_13_serviceParamsInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceOperationNameInput</sourceRef>
+        <targetRef>_13_serviceOperationNameInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>returnTypeMapInput</sourceRef>
+        <targetRef>_13_returnTypeMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>externalContentMap</sourceRef>
+        <targetRef>_13_contentMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceNameInput</sourceRef>
+        <targetRef>_13_serviceNameInput</targetRef>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_13_serviceReturnOutput</sourceRef>
+        <targetRef>serviceReturnOutput</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_13_retryFailedOutput</sourceRef>
+        <targetRef>subProcessAborted</targetRef>
+      </dataOutputAssociation>
+    </callActivity>
+    <callActivity id="_14" name="[WS] Determine Application Status" calledElement="CustomService" >
+      <extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("############## - Configuring ManageApplications - getApplicationStatus -  ########################");
+kcontext.setVariable("serviceNameInput","ManageApplications");
+kcontext.setVariable("serviceOperationNameInput","getApplicationStatus");
+
+serviceParamsInput = new java.util.HashMap&lt;String, Object&gt;();
+serviceParamsInput.put("applicationId", kcontext.getVariable("applicationId"));
+kcontext.setVariable("serviceParamsInput",serviceParamsInput);
+
+boolean isMap = false;
+kcontext.setVariable("returnTypeMapInput",isMap);
+
+System.out.println("##########  INVOKE SERVICE ManageApplications - getApplicationStatus");</tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("on exit from #############     SUB PROCESS ##################");
+java.util.Map&lt;String, Object&gt; param = (java.util.Map&lt;String, Object&gt;)kcontext.getVariable("serviceReturnOutput");
+System.out.println("###### param = "+param);
+if( param != null ){
+	currentProcessingStatus = (String) param.get("currentProcessingStatus");
+	currentSuspensionStatus = (String) param.get("currentSuspensionStatus");
+	kcontext.setVariable("currentProcessingStatus",currentProcessingStatus );	
+	kcontext.setVariable("currentSuspensionStatus",currentSuspensionStatus );
+}
+System.out.println("###### currentProcessingStatus = "+kcontext.getVariable("currentProcessingStatus"));
+System.out.println("###### currentSuspensionStatus = "+kcontext.getVariable("currentSuspensionStatus"));</tns:script>
+        </tns:onExit-script>
+      </extensionElements>
+      <ioSpecification>
+        <dataInput id="_14_serviceParamsInput" name="serviceParams" />
+        <dataInput id="_14_serviceOperationNameInput" name="serviceOperationName" />
+        <dataInput id="_14_returnTypeMapInput" name="returnTypeMap" />
+        <dataInput id="_14_contentMapInput" name="contentMap" />
+        <dataInput id="_14_serviceNameInput" name="serviceName" />
+        <dataOutput id="_14_serviceReturnOutput" name="serviceReturn" />
+        <dataOutput id="_14_retryFailedOutput" name="retryFailed" />
+        <inputSet>
+          <dataInputRefs>_14_serviceParamsInput</dataInputRefs>
+          <dataInputRefs>_14_serviceOperationNameInput</dataInputRefs>
+          <dataInputRefs>_14_returnTypeMapInput</dataInputRefs>
+          <dataInputRefs>_14_contentMapInput</dataInputRefs>
+          <dataInputRefs>_14_serviceNameInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>_14_serviceReturnOutput</dataOutputRefs>
+          <dataOutputRefs>_14_retryFailedOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>serviceParamsInput</sourceRef>
+        <targetRef>_14_serviceParamsInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceOperationNameInput</sourceRef>
+        <targetRef>_14_serviceOperationNameInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>returnTypeMapInput</sourceRef>
+        <targetRef>_14_returnTypeMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>externalContentMap</sourceRef>
+        <targetRef>_14_contentMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceNameInput</sourceRef>
+        <targetRef>_14_serviceNameInput</targetRef>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_14_serviceReturnOutput</sourceRef>
+        <targetRef>serviceReturnOutput</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_14_retryFailedOutput</sourceRef>
+        <targetRef>subProcessAborted</targetRef>
+      </dataOutputAssociation>
+    </callActivity>
+    <inclusiveGateway id="_15" name="Gateway" gatewayDirection="Diverging" />
+    <inclusiveGateway id="_17" name="Gateway" gatewayDirection="Diverging" />
+    <scriptTask id="_16" name="Process info fail Log" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("Process info set call failed");</script>
+    </scriptTask>
+    <endEvent id="_19" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <scriptTask id="_18" name="Application Status call Fail Log" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("Application status call failed");</script>
+    </scriptTask>
+    <inclusiveGateway id="_21" name="Gateway" gatewayDirection="Diverging" />
+    <endEvent id="_20" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <callActivity id="_25" name="[WS] Manage Inspection Selection Tasks" calledElement="CustomService" >
+      <extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("############## - Configuring ManageWorkflowAndTasks - manageProcessSAFErrors -  ########################");
+kcontext.setVariable("serviceNameInput","ManageWorkflowAndTasks");
+kcontext.setVariable("serviceOperationNameInput","manageProcessSAFErrors");
+
+serviceParamsInput = new java.util.HashMap&lt;String, Object&gt;();
+serviceParamsInput.put("applicationId", kcontext.getVariable("applicationId"));
+kcontext.setVariable("serviceParamsInput",serviceParamsInput);
+
+boolean isMap = false;
+kcontext.setVariable("returnTypeMapInput",isMap);
+
+System.out.println("##########  INVOKE SERVICE ManageWorkflowAndTasks - manageProcessSAFErrors");</tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("on exit from #############     SUB PROCESS ##################");
+java.util.Map&lt;String, Object&gt; param = (java.util.Map&lt;String, Object&gt;)kcontext.getVariable("serviceReturnOutput");
+System.out.println("###### param = "+param);
+if( param != null ){
+	hasInspectionSelectionErrors = ((Boolean) param.get("hasInspectionSelectionErrors")).booleanValue();
+	hasProcessSAFErrors =((Boolean)param.get("hasProcessSAFErrors")).booleanValue();
+	kcontext.setVariable("hasInspectionSelectionErrors",Boolean.valueOf(hasInspectionSelectionErrors ));	
+	kcontext.setVariable("hasProcessSAFErrors", Boolean.valueOf(hasProcessSAFErrors) );
+}
+System.out.println("###### currentProcessingStatus = "+kcontext.getVariable("hasInspectionSelectionErrors"));
+System.out.println("###### currentSuspensionStatus = "+kcontext.getVariable("hasProcessSAFErrors"));</tns:script>
+        </tns:onExit-script>
+      </extensionElements>
+      <ioSpecification>
+        <dataInput id="_25_serviceParamsInput" name="serviceParams" />
+        <dataInput id="_25_serviceOperationNameInput" name="serviceOperationName" />
+        <dataInput id="_25_returnTypeMapInput" name="returnTypeMap" />
+        <dataInput id="_25_contentMapInput" name="contentMap" />
+        <dataInput id="_25_serviceNameInput" name="serviceName" />
+        <dataOutput id="_25_serviceReturnOutput" name="serviceReturn" />
+        <dataOutput id="_25_retryFailedOutput" name="retryFailed" />
+        <inputSet>
+          <dataInputRefs>_25_serviceParamsInput</dataInputRefs>
+          <dataInputRefs>_25_serviceOperationNameInput</dataInputRefs>
+          <dataInputRefs>_25_returnTypeMapInput</dataInputRefs>
+          <dataInputRefs>_25_contentMapInput</dataInputRefs>
+          <dataInputRefs>_25_serviceNameInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>_25_serviceReturnOutput</dataOutputRefs>
+          <dataOutputRefs>_25_retryFailedOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>serviceParamsInput</sourceRef>
+        <targetRef>_25_serviceParamsInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceOperationNameInput</sourceRef>
+        <targetRef>_25_serviceOperationNameInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>returnTypeMapInput</sourceRef>
+        <targetRef>_25_returnTypeMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>externalContentMap</sourceRef>
+        <targetRef>_25_contentMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceNameInput</sourceRef>
+        <targetRef>_25_serviceNameInput</targetRef>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_25_serviceReturnOutput</sourceRef>
+        <targetRef>serviceReturnOutput</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_25_retryFailedOutput</sourceRef>
+        <targetRef>subProcessAborted</targetRef>
+      </dataOutputAssociation>
+    </callActivity>
+    <exclusiveGateway id="_24" name="Gateway" gatewayDirection="Converging" />
+    <scriptTask id="_27" name="Inspection Selection call fail Log" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("Inspection Selection call failed");</script>
+    </scriptTask>
+    <inclusiveGateway id="_26" name="Gateway" gatewayDirection="Diverging" />
+    <inclusiveGateway id="_29" name="Gateway" gatewayDirection="Diverging" />
+    <endEvent id="_28" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <intermediateCatchEvent id="_31" name="ApplicationRevalidated Signal" >
+      <signalEventDefinition signalRef="ApplicationRevalidated"/>
+    </intermediateCatchEvent>
+    <exclusiveGateway id="_30" name="Gateway" gatewayDirection="Converging" />
+    <exclusiveGateway id="_34" name="Gateway" gatewayDirection="Converging" />
+    <scriptTask id="_35" name="Initiate SAF call fail Log" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("Initiate SAF processing call failed");</script>
+    </scriptTask>
+    <callActivity id="_32" name="[WS] Initiate SAF Processing" calledElement="CustomService" >
+      <extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("############## - Configuring SAFProcessingService - executeInitialValidation -  ########################");
+kcontext.setVariable("serviceNameInput","SAFProcessingService");
+kcontext.setVariable("serviceOperationNameInput","executeInitialValidation");
+
+serviceParamsInput = new java.util.HashMap&lt;String, Object&gt;();
+serviceParamsInput.put("applicationId", kcontext.getVariable("applicationId"));
+kcontext.setVariable("serviceParamsInput",serviceParamsInput);
+
+boolean isMap = false;
+kcontext.setVariable("returnTypeMapInput",isMap);
+
+System.out.println("##########  INVOKE SERVICE SAFProcessingService - executeInitialValidation");</tns:script>
+        </tns:onEntry-script>
+      </extensionElements>
+      <ioSpecification>
+        <dataInput id="_32_serviceParamsInput" name="serviceParams" />
+        <dataInput id="_32_serviceOperationNameInput" name="serviceOperationName" />
+        <dataInput id="_32_returnTypeMapInput" name="returnTypeMap" />
+        <dataInput id="_32_contentMapInput" name="contentMap" />
+        <dataInput id="_32_serviceNameInput" name="serviceName" />
+        <dataOutput id="_32_serviceReturnOutput" name="serviceReturn" />
+        <dataOutput id="_32_retryFailedOutput" name="retryFailed" />
+        <inputSet>
+          <dataInputRefs>_32_serviceParamsInput</dataInputRefs>
+          <dataInputRefs>_32_serviceOperationNameInput</dataInputRefs>
+          <dataInputRefs>_32_returnTypeMapInput</dataInputRefs>
+          <dataInputRefs>_32_contentMapInput</dataInputRefs>
+          <dataInputRefs>_32_serviceNameInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>_32_serviceReturnOutput</dataOutputRefs>
+          <dataOutputRefs>_32_retryFailedOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>serviceParamsInput</sourceRef>
+        <targetRef>_32_serviceParamsInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceOperationNameInput</sourceRef>
+        <targetRef>_32_serviceOperationNameInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>returnTypeMapInput</sourceRef>
+        <targetRef>_32_returnTypeMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>externalContentMap</sourceRef>
+        <targetRef>_32_contentMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceNameInput</sourceRef>
+        <targetRef>_32_serviceNameInput</targetRef>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_32_serviceReturnOutput</sourceRef>
+        <targetRef>serviceReturnOutput</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_32_retryFailedOutput</sourceRef>
+        <targetRef>subProcessAborted</targetRef>
+      </dataOutputAssociation>
+    </callActivity>
+    <inclusiveGateway id="_33" name="Gateway" gatewayDirection="Diverging" />
+    <inclusiveGateway id="_38" name="Gateway" gatewayDirection="Diverging" />
+    <scriptTask id="_39" name="SAF Process call fail Log" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("SAF Process tasks call failed");</script>
+    </scriptTask>
+    <endEvent id="_36" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <callActivity id="_37" name="[WS] Manage SAF Process Error tasks" calledElement="CustomService" >
+      <extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("############## - Configuring ManageWorkflowAndTasks - manageProcessSAFErrors -  ########################");
+kcontext.setVariable("serviceNameInput","ManageWorkflowAndTasks");
+kcontext.setVariable("serviceOperationNameInput","manageProcessSAFErrors");
+
+serviceParamsInput = new java.util.HashMap&lt;String, Object&gt;();
+serviceParamsInput.put("applicationId", kcontext.getVariable("applicationId"));
+kcontext.setVariable("serviceParamsInput",serviceParamsInput);
+
+boolean isMap = false;
+kcontext.setVariable("returnTypeMapInput",isMap);
+
+System.out.println("##########  INVOKE SERVICE ManageWorkflowAndTasks - manageProcessSAFErrors");</tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script>System.out.println("on exit from #############     SUB PROCESS ##################");
+java.util.Map&lt;String, Object&gt; param = (java.util.Map&lt;String, Object&gt;)kcontext.getVariable("serviceReturnOutput");
+System.out.println("###### param = "+param);
+if( param != null ){
+	hasInspectionSelectionErrors = ((Boolean) param.get("hasInspectionSelectionErrors")).booleanValue();
+	hasProcessSAFErrors =((Boolean)param.get("hasProcessSAFErrors")).booleanValue();
+	kcontext.setVariable("hasInspectionSelectionErrors",Boolean.valueOf(hasInspectionSelectionErrors ));	
+	kcontext.setVariable("hasProcessSAFErrors", Boolean.valueOf(hasProcessSAFErrors) );
+}
+System.out.println("###### currentProcessingStatus = "+kcontext.getVariable("hasInspectionSelectionErrors"));
+System.out.println("###### currentSuspensionStatus = "+kcontext.getVariable("hasProcessSAFErrors"));</tns:script>
+        </tns:onExit-script>
+      </extensionElements>
+      <ioSpecification>
+        <dataInput id="_37_serviceParamsInput" name="serviceParams" />
+        <dataInput id="_37_serviceOperationNameInput" name="serviceOperationName" />
+        <dataInput id="_37_returnTypeMapInput" name="returnTypeMap" />
+        <dataInput id="_37_contentMapInput" name="contentMap" />
+        <dataInput id="_37_serviceNameInput" name="serviceName" />
+        <dataOutput id="_37_serviceReturnOutput" name="serviceReturn" />
+        <dataOutput id="_37_retryFailedOutput" name="retryFailed" />
+        <inputSet>
+          <dataInputRefs>_37_serviceParamsInput</dataInputRefs>
+          <dataInputRefs>_37_serviceOperationNameInput</dataInputRefs>
+          <dataInputRefs>_37_returnTypeMapInput</dataInputRefs>
+          <dataInputRefs>_37_contentMapInput</dataInputRefs>
+          <dataInputRefs>_37_serviceNameInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>_37_serviceReturnOutput</dataOutputRefs>
+          <dataOutputRefs>_37_retryFailedOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>serviceParamsInput</sourceRef>
+        <targetRef>_37_serviceParamsInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceOperationNameInput</sourceRef>
+        <targetRef>_37_serviceOperationNameInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>returnTypeMapInput</sourceRef>
+        <targetRef>_37_returnTypeMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>externalContentMap</sourceRef>
+        <targetRef>_37_contentMapInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>serviceNameInput</sourceRef>
+        <targetRef>_37_serviceNameInput</targetRef>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_37_serviceReturnOutput</sourceRef>
+        <targetRef>serviceReturnOutput</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_37_retryFailedOutput</sourceRef>
+        <targetRef>subProcessAborted</targetRef>
+      </dataOutputAssociation>
+    </callActivity>
+    <exclusiveGateway id="_42" name="Gateway" gatewayDirection="Converging" />
+    <intermediateCatchEvent id="_43" name="Application Revalidation" >
+      <signalEventDefinition signalRef="ApplicationRevalidated"/>
+    </intermediateCatchEvent>
+    <inclusiveGateway id="_40" name="Gateway" gatewayDirection="Diverging" />
+    <endEvent id="_41" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+
+    <!-- connections -->
+    <sequenceFlow id="_1-_2" sourceRef="_1" targetRef="_2" />
+    <sequenceFlow id="_2-_3" sourceRef="_2" targetRef="_3" />
+    <sequenceFlow id="_3-_4" sourceRef="_3" targetRef="_4" name="In Flight call Failed" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_4-_5" sourceRef="_4" targetRef="_5" />
+    <sequenceFlow id="_3-_6" sourceRef="_3" targetRef="_6" name="In Flight call success" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_6-_7" sourceRef="_6" targetRef="_7" name="Is InFlight" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return isInFlight;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_9-_8" sourceRef="_9" targetRef="_8" name="Revalidation call sucess" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_7-_9" sourceRef="_7" targetRef="_9" />
+    <sequenceFlow id="_9-_10" sourceRef="_9" targetRef="_10" name="Revalidation call Failed" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_10-_11" sourceRef="_10" targetRef="_11" />
+    <sequenceFlow id="_40-_12" sourceRef="_40" targetRef="_12" name="No Process SAF Errors" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !hasProcessSAFErrors;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_6-_13" sourceRef="_6" targetRef="_13" name="Not InFlight" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !isInFlight;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_15-_14" sourceRef="_15" targetRef="_14" name="Set Process Info call sucess" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_13-_15" sourceRef="_13" targetRef="_15" />
+    <sequenceFlow id="_14-_17" sourceRef="_14" targetRef="_17" />
+    <sequenceFlow id="_15-_16" sourceRef="_15" targetRef="_16" name="Set Process Info call failed" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_16-_19" sourceRef="_16" targetRef="_19" />
+    <sequenceFlow id="_17-_18" sourceRef="_17" targetRef="_18" name="Application Status call failed" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_17-_21" sourceRef="_17" targetRef="_21" name="Application Status call success" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_18-_20" sourceRef="_18" targetRef="_20" />
+    <sequenceFlow id="_24-_25" sourceRef="_24" targetRef="_25" />
+    <sequenceFlow id="_21-_24" sourceRef="_21" targetRef="_24" name="Status Submitted" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return "Submitted".equals(currentProcessingStatus);</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_30-_24" sourceRef="_30" targetRef="_24" />
+    <sequenceFlow id="_26-_27" sourceRef="_26" targetRef="_27" name="Inspection Selection call failed" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_25-_26" sourceRef="_25" targetRef="_26" />
+    <sequenceFlow id="_26-_29" sourceRef="_26" targetRef="_29" name="Inspection Selection call success" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_27-_28" sourceRef="_27" targetRef="_28" />
+    <sequenceFlow id="_29-_30" sourceRef="_29" targetRef="_30" name="Has Inspection Selection Errors" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return hasInspectionSelectionErrors;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_31-_30" sourceRef="_31" targetRef="_30" />
+    <sequenceFlow id="_21-_34" sourceRef="_21" targetRef="_34" name="Status not Submitted" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !"Submitted".equals(currentProcessingStatus);</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_33-_34" sourceRef="_33" targetRef="_34" name="Initiate SAF call success" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_42-_34" sourceRef="_42" targetRef="_34" />
+    <sequenceFlow id="_33-_35" sourceRef="_33" targetRef="_35" name="Initiate SAF call failed" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_29-_32" sourceRef="_29" targetRef="_32" name="No Inspection Selection Errors" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !hasInspectionSelectionErrors;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_32-_33" sourceRef="_32" targetRef="_33" />
+    <sequenceFlow id="_37-_38" sourceRef="_37" targetRef="_38" />
+    <sequenceFlow id="_38-_39" sourceRef="_38" targetRef="_39" name="SAF Process tasks call failed" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_35-_36" sourceRef="_35" targetRef="_36" />
+    <sequenceFlow id="_34-_37" sourceRef="_34" targetRef="_37" />
+    <sequenceFlow id="_43-_42" sourceRef="_43" targetRef="_42" />
+    <sequenceFlow id="_40-_42" sourceRef="_40" targetRef="_42" name="Has Process SAF Errors" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return hasProcessSAFErrors;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_38-_40" sourceRef="_38" targetRef="_40" name="SAF Process tasks call success" tns:priority="2" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return !subProcessAborted;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_39-_41" sourceRef="_39" targetRef="_41" />
+
+  </process>
+
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="application-process-saf" >
+      <bpmndi:BPMNShape bpmnElement="_1" >
+        <dc:Bounds x="116" y="20" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_2" >
+        <dc:Bounds x="19" y="123" width="243" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_3" >
+        <dc:Bounds x="114" y="225" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_4" >
+        <dc:Bounds x="356" y="228" width="182" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_5" >
+        <dc:Bounds x="1057" y="227" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_6" >
+        <dc:Bounds x="159" y="329" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_7" >
+        <dc:Bounds x="279" y="329" width="272" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_8" >
+        <dc:Bounds x="1053" y="443" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_9" >
+        <dc:Bounds x="583" y="330" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_10" >
+        <dc:Bounds x="802" y="331" width="216" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_11" >
+        <dc:Bounds x="1056" y="329" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_12" >
+        <dc:Bounds x="540" y="2551" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_13" >
+        <dc:Bounds x="91" y="457" width="192" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_14" >
+        <dc:Bounds x="131" y="737" width="228" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_15" >
+        <dc:Bounds x="222" y="600" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_17" >
+        <dc:Bounds x="286" y="882" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_16" >
+        <dc:Bounds x="522" y="601" width="248" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_19" >
+        <dc:Bounds x="1055" y="599" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_18" >
+        <dc:Bounds x="580" y="881" width="235" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_21" >
+        <dc:Bounds x="285" y="1002" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_20" >
+        <dc:Bounds x="1053" y="879" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_25" >
+        <dc:Bounds x="177" y="1220" width="276" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_24" >
+        <dc:Bounds x="288" y="1104" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_27" >
+        <dc:Bounds x="628" y="1360" width="230" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_26" >
+        <dc:Bounds x="370" y="1355" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_29" >
+        <dc:Bounds x="376" y="1499" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_28" >
+        <dc:Bounds x="1053" y="1355" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_31" >
+        <dc:Bounds x="83" y="1626" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_30" >
+        <dc:Bounds x="81" y="1497" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_34" >
+        <dc:Bounds x="461" y="1887" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_35" >
+        <dc:Bounds x="685" y="1758" width="245" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_32" >
+        <dc:Bounds x="297" y="1617" width="209" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_33" >
+        <dc:Bounds x="458" y="1760" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_38" >
+        <dc:Bounds x="538" y="2143" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_39" >
+        <dc:Bounds x="134" y="2141" width="223" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_36" >
+        <dc:Bounds x="1061" y="1756" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_37" >
+        <dc:Bounds x="379" y="1997" width="225" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_42" >
+        <dc:Bounds x="725" y="2257" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_43" >
+        <dc:Bounds x="892" y="2258" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_40" >
+        <dc:Bounds x="541" y="2260" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_41" >
+        <dc:Bounds x="25" y="2142" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="_1-_2" >
+        <di:waypoint x="140" y="44" />
+        <di:waypoint x="140" y="147" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_2-_3" >
+        <di:waypoint x="140" y="147" />
+        <di:waypoint x="138" y="249" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_3-_4" >
+        <di:waypoint x="138" y="249" />
+        <di:waypoint x="447" y="252" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_4-_5" >
+        <di:waypoint x="447" y="252" />
+        <di:waypoint x="1081" y="251" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_3-_6" >
+        <di:waypoint x="138" y="249" />
+        <di:waypoint x="139" y="297" />
+        <di:waypoint x="184" y="297" />
+        <di:waypoint x="183" y="353" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_6-_7" >
+        <di:waypoint x="183" y="353" />
+        <di:waypoint x="415" y="353" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_9-_8" >
+        <di:waypoint x="607" y="354" />
+        <di:waypoint x="610" y="468" />
+        <di:waypoint x="1077" y="467" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_7-_9" >
+        <di:waypoint x="415" y="353" />
+        <di:waypoint x="607" y="354" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_9-_10" >
+        <di:waypoint x="607" y="354" />
+        <di:waypoint x="910" y="355" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_10-_11" >
+        <di:waypoint x="910" y="355" />
+        <di:waypoint x="1080" y="353" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_40-_12" >
+        <di:waypoint x="565" y="2284" />
+        <di:waypoint x="564" y="2575" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_6-_13" >
+        <di:waypoint x="183" y="353" />
+        <di:waypoint x="184" y="436" />
+        <di:waypoint x="187" y="481" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_15-_14" >
+        <di:waypoint x="246" y="624" />
+        <di:waypoint x="245" y="761" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_13-_15" >
+        <di:waypoint x="187" y="481" />
+        <di:waypoint x="189" y="560" />
+        <di:waypoint x="246" y="560" />
+        <di:waypoint x="246" y="624" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_14-_17" >
+        <di:waypoint x="245" y="761" />
+        <di:waypoint x="245" y="841" />
+        <di:waypoint x="310" y="841" />
+        <di:waypoint x="310" y="906" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_15-_16" >
+        <di:waypoint x="246" y="624" />
+        <di:waypoint x="646" y="625" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_16-_19" >
+        <di:waypoint x="646" y="625" />
+        <di:waypoint x="1079" y="623" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_17-_18" >
+        <di:waypoint x="310" y="906" />
+        <di:waypoint x="697" y="905" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_17-_21" >
+        <di:waypoint x="310" y="906" />
+        <di:waypoint x="309" y="1026" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_18-_20" >
+        <di:waypoint x="697" y="905" />
+        <di:waypoint x="1077" y="903" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_24-_25" >
+        <di:waypoint x="312" y="1128" />
+        <di:waypoint x="315" y="1244" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_21-_24" >
+        <di:waypoint x="309" y="1026" />
+        <di:waypoint x="312" y="1128" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_30-_24" >
+        <di:waypoint x="105" y="1521" />
+        <di:waypoint x="105" y="1128" />
+        <di:waypoint x="312" y="1128" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_26-_27" >
+        <di:waypoint x="394" y="1379" />
+        <di:waypoint x="743" y="1384" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_25-_26" >
+        <di:waypoint x="315" y="1244" />
+        <di:waypoint x="318" y="1309" />
+        <di:waypoint x="395" y="1309" />
+        <di:waypoint x="394" y="1379" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_26-_29" >
+        <di:waypoint x="394" y="1379" />
+        <di:waypoint x="400" y="1523" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_27-_28" >
+        <di:waypoint x="743" y="1384" />
+        <di:waypoint x="1077" y="1379" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_29-_30" >
+        <di:waypoint x="400" y="1523" />
+        <di:waypoint x="105" y="1521" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_31-_30" >
+        <di:waypoint x="107" y="1650" />
+        <di:waypoint x="105" y="1521" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_21-_34" >
+        <di:waypoint x="309" y="1026" />
+        <di:waypoint x="36" y="1028" />
+        <di:waypoint x="45" y="1916" />
+        <di:waypoint x="485" y="1911" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_33-_34" >
+        <di:waypoint x="482" y="1784" />
+        <di:waypoint x="485" y="1911" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_42-_34" >
+        <di:waypoint x="749" y="2281" />
+        <di:waypoint x="742" y="1910" />
+        <di:waypoint x="485" y="1911" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_33-_35" >
+        <di:waypoint x="482" y="1784" />
+        <di:waypoint x="807" y="1782" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_29-_32" >
+        <di:waypoint x="400" y="1523" />
+        <di:waypoint x="401" y="1641" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_32-_33" >
+        <di:waypoint x="401" y="1641" />
+        <di:waypoint x="405" y="1730" />
+        <di:waypoint x="480" y="1731" />
+        <di:waypoint x="482" y="1784" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_37-_38" >
+        <di:waypoint x="491" y="2021" />
+        <di:waypoint x="500" y="2092" />
+        <di:waypoint x="562" y="2093" />
+        <di:waypoint x="562" y="2167" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_38-_39" >
+        <di:waypoint x="562" y="2167" />
+        <di:waypoint x="245" y="2165" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_35-_36" >
+        <di:waypoint x="807" y="1782" />
+        <di:waypoint x="1085" y="1780" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_34-_37" >
+        <di:waypoint x="485" y="1911" />
+        <di:waypoint x="491" y="2021" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_43-_42" >
+        <di:waypoint x="916" y="2282" />
+        <di:waypoint x="749" y="2281" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_40-_42" >
+        <di:waypoint x="565" y="2284" />
+        <di:waypoint x="749" y="2281" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_38-_40" >
+        <di:waypoint x="562" y="2167" />
+        <di:waypoint x="565" y="2284" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_39-_41" >
+        <di:waypoint x="245" y="2165" />
+        <di:waypoint x="49" y="2166" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>
