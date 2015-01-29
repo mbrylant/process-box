@@ -165,12 +165,12 @@ kcontext.setVariable(&quot;retryFailed&quot;,mapContent.get(&quot;retryFailed&qu
         <dc:Bounds height="48.0" width="48.0" x="696.0" y="340.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_ComplexGateway_1" bpmnElement="_jbpm-unique-5">
-        <dc:Bounds height="48.0" width="48.0" x="696.0" y="216.0"/>
+        <dc:Bounds height="48.0" width="48.0" x="697.0" y="205.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="_jbpm-unique-5-_5" sourceElement="BPMNShape_ComplexGateway_1" targetElement="BPMNShape_UserTask_1">
-        <di:waypoint xsi:type="dc:Point" x="745.0" y="240.0"/>
-        <di:waypoint xsi:type="dc:Point" x="787.0" y="240.0"/>
-        <di:waypoint xsi:type="dc:Point" x="787.0" y="238.0"/>
+        <di:waypoint xsi:type="dc:Point" x="746.0" y="229.0"/>
+        <di:waypoint xsi:type="dc:Point" x="788.0" y="229.0"/>
+        <di:waypoint xsi:type="dc:Point" x="788.0" y="238.0"/>
         <di:waypoint xsi:type="dc:Point" x="840.0" y="238.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_2" bpmnElement="_5-_3" sourceElement="BPMNShape_UserTask_1" targetElement="BPMNShape_EndEvent_1">
@@ -196,15 +196,15 @@ kcontext.setVariable(&quot;retryFailed&quot;,mapContent.get(&quot;retryFailed&qu
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_6" bpmnElement="ServiceTask_3-_jbpm-unique-5" sourceElement="BPMNShape_Task_1" targetElement="BPMNShape_ComplexGateway_1">
         <di:waypoint xsi:type="dc:Point" x="599.0" y="240.0"/>
-        <di:waypoint xsi:type="dc:Point" x="642.0" y="240.0"/>
-        <di:waypoint xsi:type="dc:Point" x="642.0" y="240.0"/>
-        <di:waypoint xsi:type="dc:Point" x="696.0" y="240.0"/>
+        <di:waypoint xsi:type="dc:Point" x="643.0" y="240.0"/>
+        <di:waypoint xsi:type="dc:Point" x="643.0" y="229.0"/>
+        <di:waypoint xsi:type="dc:Point" x="697.0" y="229.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_7" bpmnElement="_jbpm-unique-4-_jbpm-unique-5" sourceElement="BPMNShape_IntermediateCatchEvent_1" targetElement="BPMNShape_ComplexGateway_1">
         <di:waypoint xsi:type="dc:Point" x="720.0" y="340.0"/>
-        <di:waypoint xsi:type="dc:Point" x="720.0" y="284.0"/>
-        <di:waypoint xsi:type="dc:Point" x="720.0" y="284.0"/>
-        <di:waypoint xsi:type="dc:Point" x="720.0" y="265.0"/>
+        <di:waypoint xsi:type="dc:Point" x="720.0" y="273.0"/>
+        <di:waypoint xsi:type="dc:Point" x="721.0" y="273.0"/>
+        <di:waypoint xsi:type="dc:Point" x="721.0" y="254.0"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
