@@ -18,18 +18,33 @@
 package org.jboss.jbpm.processbox.tests;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import org.drools.SystemEventListenerFactory;
+import org.drools.process.core.Work;
+import org.drools.runtime.process.ProcessInstance;
 import org.jboss.jbpm.processbiox.container.ContainerInitializationException;
 import org.jboss.jbpm.processbox.core.ProcessBoxConfigurationException;
 import org.jboss.jbpm.processbox.core.ProcessBoxTest;
+import org.jboss.jbpm.processbox.core.ProcessBoxTest.ResultStackSubProcessMockBuilder;
 import org.jboss.jbpm.processbox.events.base.Events;
+import org.jboss.jbpm.processbox.events.base.ProcessBoxNodeInvocationEvent;
+import org.jboss.jbpm.processbox.handlers.NodeMockWorkItemHandler;
 import org.jboss.jbpm.processbox.handlers.ResultStackMockWorkItemHandler;
 import org.jboss.jbpm.processbox.model.PBProperties;
+import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
+import org.jbpm.task.query.TaskSummary;
+import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.mina.MinaTaskClientConnector;
+import org.jbpm.task.service.mina.MinaTaskClientHandler;
+import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 public class ApplicationProcessingTest extends ProcessBoxTest {
 
